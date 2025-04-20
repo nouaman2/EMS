@@ -11,8 +11,7 @@ const FeedChart = ({ data, feedName }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
-  const [timeRange, setTimeRange] = useState('1w');
-
+  const [timeRange, setTimeRange] = useState('1m');
   const chartTypes = [
     {
       id: 'line',
@@ -33,7 +32,6 @@ const FeedChart = ({ data, feedName }) => {
       description: 'Barres verticales'
     }
   ];
-
 
   const timeRanges = [
     { id: '1h', name: 'Last Hour', description: 'Dernière heure' },
@@ -200,7 +198,6 @@ const FeedChart = ({ data, feedName }) => {
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
-
     //console.log('data:', data);
 
     const defaultColors = [
@@ -347,6 +344,38 @@ const FeedChart = ({ data, feedName }) => {
       '2m': 'week',
     }[timeRange];
 
+    //console.log(datasets);
+    // Register the custom plugin globally
+    Chart.register({
+      id: 'customValueDisplay',
+      beforeDraw(chart) {
+        const { ctx, chartArea } = chart;
+        const datasets = chart.data.datasets;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, chart.width, chart.height);
+        ctx.clip();
+
+        // console.log(isDarkMode);
+        ctx.font = '10px Arial';
+        ctx.fillStyle ='rgb(126, 125, 125)' ; 
+
+        datasets.forEach((dataset, index) => {
+          // Get the last data point
+          const lastDataPoint = dataset.data[dataset.data.length - 1];
+          if (lastDataPoint && lastDataPoint.y !== undefined) {
+            const x = chartArea.right - 100; // Adjust position near the right
+            const y = chartArea.top + index * -11; // Offset for each dataset
+            ctx.fillText(`${dataset.label}: ${lastDataPoint.y.toFixed(2)}`, x, y);
+          }
+        });
+
+        ctx.restore();
+      },
+    });
+
+    // Create the chart instance
     chartInstance.current = new Chart(ctx, {
       type: chartType === 'bar' ? 'bar' : 'line',
       data: { datasets },
@@ -357,36 +386,38 @@ const FeedChart = ({ data, feedName }) => {
         plugins: {
           legend: { display: true, position: 'top' },
           tooltip: { mode: 'index', intersect: false },
+          title: { display: true, text: feedName },
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false,
         },
         scales: {
           x: {
             type: 'time',
             time: { unit: timeUnit },
             ticks: { source: 'auto' },
-            adapters: { date: { locale: enUS } }
+            adapters: { date: { locale: enUS } },
           },
           y: {
             beginAtZero: false,
             ticks: {
               callback: function (value) {
                 return value;
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     });
-
+    
     return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
     };
   }, [data, chartType, timeRange]);
-
-
-
-
 
   const stats = calculateStats();
 

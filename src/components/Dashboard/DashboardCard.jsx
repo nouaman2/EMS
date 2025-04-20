@@ -12,13 +12,10 @@ const DashboardCard = ({ id, name, description }) => {
 
   const handleView = () => {
     // console.log('clicked');
-    if (name === "1_MULTIPUISSANCES") {
-      navigate('/dashboard/multipuissance');
-    } else if (name === "4_TEMPERATURE") {
-      navigate('/dashboard/temperature');
+    if (name) {
+      navigate(`/dashboard/${name}`); // Navigate directly using the selected name
     } else {
       window.open(`http://electricwave.ma/energymonitoring/dashboard/view?id=${id}`, '_blank');
-
     }
   };
 

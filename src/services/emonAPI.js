@@ -57,12 +57,12 @@ export const getFeedsList = async () => {
 export const getFeedData = async (feedId) => {
   try {
     const now = Math.floor(Date.now() / 1000);
-    
+
     // Modifié pour 2 mois au lieu de 3 mois
     const end = now * 1000;
     const start = (now - (60 * 24 * 60 * 60)) * 1000; // 2 months ago
 
-    const targetUrl = `${BASE_URL}/feed/data.json?` + 
+    const targetUrl = `${BASE_URL}/feed/data.json?` +
       `id=${feedId}&` +
       `start=${start}&` +
       `end=${end}&` +
@@ -87,16 +87,15 @@ export const getFeedData = async (feedId) => {
 
 // Function to fetch data for specific dashboard types
 export const getDashboardTypeData = async (dashboardType) => {
-  // console.log('dashboard drawing')
   try {
     // Calculate time range
     const now = Math.floor(Date.now() / 1000);
     const end = now * 1000;
     const start = (now - (365 * 24 * 60 * 60)) * 1000; // 1 year of data
 
-    // Dashboard configurations
+    // Dashboard configurations mapped to API names
     const dashboardConfigs = {
-      multipuissance: {
+      '1_MULTIPUISSANCES': {
         title: 'Multi-Phase Power Consumption',
         feeds: [
           {
@@ -121,33 +120,60 @@ export const getDashboardTypeData = async (dashboardType) => {
           }
         ]
       },
-      multicourants: {
+      '2_MULTICOURANTS': {
         title: 'Multi-Phase Current',
         feeds: [
           {
-            id: 28,
-            name: 'I_PH1',
+            id: 149,
+            name: 'i1',
             color: { border: 'rgb(255, 159, 64)', background: 'rgba(255, 159, 64, 0.1)' }
           },
           {
-            id: 29,
-            name: 'I_PH2',
+            id: 150,
+            name: 'i2',
             color: { border: 'rgb(75, 192, 192)', background: 'rgba(75, 192, 192, 0.1)' }
           },
           {
-            id: 30,
-            name: 'I_PH3',
+            id: 151,
+            name: 'i3',
             color: { border: 'rgb(54, 162, 235)', background: 'rgba(54, 162, 235, 0.1)' }
-          },
-          {
-            id: 31,
-            name: 'I_TOTALE',
-            color: { border: 'rgb(153, 102, 255)', background: 'rgba(153, 102, 255, 0.1)' }
           }
         ]
-      }
+      },
+      '4_TEMPERATURE': {
+        title: 'temperature',
+        feeds: [
+          {
+            id: 149,
+            name: 'i1',
+            color: { border: 'rgb(255, 159, 64)', background: 'rgba(255, 159, 64, 0.1)' }
+          },
+          {
+            id: 150,
+            name: 'i2',
+            color: { border: 'rgb(75, 192, 192)', background: 'rgba(75, 192, 192, 0.1)' }
+          },
+          {
+            id: 151,
+            name: 'i3',
+            color: { border: 'rgb(54, 162, 235)', background: 'rgba(54, 162, 235, 0.1)' }
+          }
+        ]
+      },
+      'A10_EAU EW': {
+        title: 'Eau',
+        feeds: [
+          {
+            id: 54,
+            name: 'EAU EW',
+            color: { border: 'rgb(255, 159, 64)', background: 'rgba(255, 159, 64, 0.1)' }
+          },
+        ]
+      },
+
     };
 
+    // Use the dashboardType directly to fetch the correct configuration
     const config = dashboardConfigs[dashboardType];
     if (!config) {
       throw new Error(`Unknown dashboard type: ${dashboardType}`);
@@ -155,11 +181,11 @@ export const getDashboardTypeData = async (dashboardType) => {
 
     // Fetch data for all feeds in parallel
     const feedDataPromises = config.feeds.map(async (feed) => {
-      const targetUrl = `${BASE_URL}/feed/data.json?` + 
+      const targetUrl = `${BASE_URL}/feed/data.json?` +
         `id=${feed.id}&` +
         `start=${start}&` +
         `end=${end}&` +
-        `interval=3600&` + // 10-minute intervals
+        `interval=3600&` + // 1-hour intervals
         `skipmissing=0&` +
         `limitinterval=1&` +
         `apikey=${WRITE_API_KEY}`;
@@ -179,8 +205,6 @@ export const getDashboardTypeData = async (dashboardType) => {
             tension: 0.1
           };
         }
-
-        // console.log(`Received ${response.data.length} points for ${feed.name}`);
 
         return {
           label: feed.name,
@@ -208,12 +232,6 @@ export const getDashboardTypeData = async (dashboardType) => {
 
     // Wait for all data to be fetched
     const datasets = await Promise.all(feedDataPromises);
-
-    // Log summary of data received
-    datasets.forEach(dataset => {
-      const points = dataset.data.length;
-      // console.log(`${dataset.label}: ${points} points loaded`);
-    });
 
     return {
       title: config.title,

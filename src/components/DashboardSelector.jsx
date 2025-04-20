@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getDashboardList } from '../services/emonAPI';
 import { multiPuissanceConfig } from './Dashboard/dashboardTypes/multiPuissance';
 import { dashboardConfigs } from './Dashboard/dashboardTypes/multiPuissance'
@@ -6,15 +7,11 @@ import { dashboardConfigs } from './Dashboard/dashboardTypes/multiPuissance'
 const DashboardSelector = () => {
   const [dashboards, setDashboards] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
 
   const handleDashboardChange = (e) => {
-  const dashboardId = e.target.value;
-  if (dashboardConfigs[dashboardId]) {
-    window.location.href = `/dashboard/${dashboardId}`;
-  } else if (dashboardId) {
-    window.open(`http://electricwave.ma/energymonitoring/dashboard/view?id=${dashboardId}`, '_blank');
-  }
+    const dashboardName = e.target.value; // Get the selected dashboard name
+    navigate(`/dashboard/${dashboardName}`); // Navigate directly using the selected name
   };
   
 
