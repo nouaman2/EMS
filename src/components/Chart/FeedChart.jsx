@@ -6,12 +6,13 @@ import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
 import '../../styles/feed-chart.css';
 
-const FeedChart = ({ data, feedName }) => {
+const FeedChart = ({ data, feedName,timeRange }) => {
   //console.log('FeedChart received data:', data);
+  // console.log(timeRange)
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
-  const [timeRange, setTimeRange] = useState('1m');
+  
   const chartTypes = [
     {
       id: 'line',
@@ -33,13 +34,7 @@ const FeedChart = ({ data, feedName }) => {
     }
   ];
 
-  const timeRanges = [
-    { id: '1h', name: 'Last Hour', description: 'Dernière heure' },
-    { id: '24h', name: 'Last 24 Hours', description: 'Dernières 24 heures' },
-    { id: '1w', name: 'Last Week', description: 'Dernière semaine' },
-    { id: '1m', name: 'Last Month', description: 'Dernier mois' },
-    { id: '2m', name: 'Last 2 Months', description: 'Derniers 2 mois' },
-  ];
+
 
   const defaultColors = [
     { border: 'rgb(255, 99, 132)', bg: 'rgba(255, 99, 132, 0.1)' },
@@ -89,6 +84,7 @@ const FeedChart = ({ data, feedName }) => {
       '1w': now - 604800000,
       '1m': now - 2592000000,
       '2m': now - 5184000000,
+      'y': now - 31536000000,
     };
 
     //console.log('Now:', now);
@@ -147,10 +143,6 @@ const FeedChart = ({ data, feedName }) => {
       maximum: Math.max(...allValues).toFixed(2),
       total: sum.toFixed(2)
     };
-  };
-
-  const handleRefresh = () => {
-    if (chartInstance.current) chartInstance.current.update('none');
   };
 
   const handleExportCSV = () => {
@@ -342,6 +334,7 @@ const FeedChart = ({ data, feedName }) => {
       '1w': 'day',
       '1m': 'day',
       '2m': 'week',
+      'y':'year',
     }[timeRange];
 
     //console.log(datasets);
@@ -427,23 +420,7 @@ const FeedChart = ({ data, feedName }) => {
       {/* En-tête avec contrôles */}
       <div className="chart-header">
         <div className="chart-controls">
-          <div className="time-range-selector">
-            {timeRanges.map((range) => (
-              <button key={range.id} className={`time-range-option ${timeRange === range.id ? 'active' : ''}`}
-                onClick={() => setTimeRange(range.id)}
-                title={range.description}
-              >
-                {range.name}
-              </button>
-            ))}
-          </div>
           <div className="chart-actions">
-            <button className="action-button refresh-button" onClick={handleRefresh} title="Refresh data">
-              <svg className="action-button-icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
-              </svg>
-              <span>Refresh</span>
-            </button>
             <button className="action-button export-button" onClick={handleExportCSV} title="Export as CSV">
               <svg className="action-button-icon" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />

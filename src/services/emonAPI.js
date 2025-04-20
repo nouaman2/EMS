@@ -54,19 +54,36 @@ export const getFeedsList = async () => {
 };
 
 // fonction pour récupérer les données du graphique
-export const getFeedData = async (feedId) => {
+export const getFeedData = async (feedId, timeRange) => {
   try {
-    const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000); // current time in seconds
 
-    // Modifié pour 2 mois au lieu de 3 mois
-    const end = now * 1000;
-    const start = (now - (60 * 24 * 60 * 60)) * 1000; // 2 months ago
+    // Time duration in seconds for each range
+    const timeRanges = {
+      '24h': 60 * 60 * 24 + 120,        // 1 day + 2 min
+      '1w': 60 * 60 * 24 * 7 + 900,     // 7 days + 15 min
+      '1m': 60 * 60 * 24 * 30 + 3600,   // 30 days + 1 hour
+      'y': 60 * 60 * 24 * 365 + 43200   // 365 days + 12 hours
+    };
+
+    const intervalMap = {
+      '24h': 120,
+      '1w': 900,
+      '1m': 3600,
+      'y': 43200
+    };
+
+    const duration = timeRanges[timeRange] || (60 * 60 * 24 * 7); // default: 1 week
+    const interval = intervalMap[timeRange] || 900;
+
+    const end = now * 1000; // in milliseconds
+    const start = (now - duration) * 1000; // also in milliseconds
 
     const targetUrl = `${BASE_URL}/feed/data.json?` +
       `id=${feedId}&` +
       `start=${start}&` +
       `end=${end}&` +
-      `interval=3600&` + // 1 heure d'intervalle pour réduire la quantité de données
+      `interval=${interval}&` +
       `skipmissing=1&` +
       `limitinterval=1&` +
       `apikey=${API_KEY}`;
@@ -85,13 +102,33 @@ export const getFeedData = async (feedId) => {
   }
 };
 
+
 // Function to fetch data for specific dashboard types
-export const getDashboardTypeData = async (dashboardType) => {
+export const getDashboardTypeData = async (dashboardType,timeRange) => {
   try {
     // Calculate time range
     const now = Math.floor(Date.now() / 1000);
-    const end = now * 1000;
-    const start = (now - (365 * 24 * 60 * 60)) * 1000; // 1 year of data
+
+    // Time duration in seconds for each range
+    const timeRanges = {
+      '24h': 60 * 60 * 24 + 120,        // 1 day + 2 min
+      '1w': 60 * 60 * 24 * 7 + 900,     // 7 days + 15 min
+      '1m': 60 * 60 * 24 * 30 + 3600,   // 30 days + 1 hour
+      'y': 60 * 60 * 24 * 365 + 43200   // 365 days + 12 hours
+    };
+
+    const intervalMap = {
+      '24h': 120,
+      '1w': 900,
+      '1m': 3600,
+      'y': 43200
+    };
+
+    const duration = timeRanges[timeRange] || (60 * 60 * 24 * 7); // default: 1 week
+    const interval = intervalMap[timeRange] || 900;
+
+    const end = now * 1000; // in milliseconds
+    const start = (now - duration) * 1000; // also in milliseconds
 
     // Dashboard configurations mapped to API names
     const dashboardConfigs = {
@@ -185,7 +222,7 @@ export const getDashboardTypeData = async (dashboardType) => {
         `id=${feed.id}&` +
         `start=${start}&` +
         `end=${end}&` +
-        `interval=3600&` + // 1-hour intervals
+        `interval=${interval}&` + // 1-hour intervals
         `skipmissing=0&` +
         `limitinterval=1&` +
         `apikey=${WRITE_API_KEY}`;

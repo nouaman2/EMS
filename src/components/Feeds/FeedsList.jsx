@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { getFeedsList, getFeedData } from '../../services/emonAPI';
 import FeedChart from '../Chart/FeedChart';
@@ -8,6 +9,7 @@ const FeedsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFeed, setSelectedFeed] = useState(null);
+  const [timeRange, setTimeRange] = useState('1m');
 
   useEffect(() => {
     const fetchFeeds = async () => {
@@ -35,10 +37,10 @@ const FeedsList = () => {
 
   const getTimeDifference = (timestamp) => {
     if (!timestamp) return { text: 'Never', isRecent: false };
-    
+
     const now = Math.floor(Date.now() / 1000);
     const diff = now - timestamp;
-    
+
     if (diff < 10) {
       return { text: 'Just now', isRecent: true };
     } else if (diff < 60) {
@@ -54,9 +56,9 @@ const FeedsList = () => {
     }
   };
 
-  const handleFeedClick = async (feed) => {
+  const handleFeedClick = async (feed,newTimeRange) => {
     try {
-      const data = await getFeedData(feed.id);
+      const data = await getFeedData(feed.id, newTimeRange);
       if (data && Array.isArray(data) && data.length > 0) {
         setSelectedFeed({
           ...feed,
@@ -91,7 +93,6 @@ const FeedsList = () => {
   return (
     <div className="feeds-container">
       <h3 className="feeds-title">Feeds By Node</h3>
-
       <div className="feeds-layout">
         <div className="feeds-sidebar">
           <div className="feeds-list">
@@ -156,11 +157,26 @@ const FeedsList = () => {
           {selectedFeed ? (
             <div className="chart-container">
               <h3 className="chart-title">{selectedFeed.name}</h3>
+              <div className="time-range-selector">
+                {[ '24h', '1w', '1m', 'y'].map((range) => (
+                  <button
+                    key={range}
+                    className={`time-range-option ${timeRange === range ? 'active' : ''}`}
+                    onClick={() => {
+                      setTimeRange(range);
+                      handleFeedClick(selectedFeed,range);
+                    }}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
+
               {selectedFeed.chartData && selectedFeed.chartData.length > 0 ? (
-                <FeedChart 
-                  data={selectedFeed.chartData} 
+                <FeedChart
+                  data={selectedFeed.chartData}
                   feedName={selectedFeed.name}
-                  defaultTimeRange="1w"
+                  timeRange={timeRange} 
                 />
               ) : (
                 <div className="no-data-message">

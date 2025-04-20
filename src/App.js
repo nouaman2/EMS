@@ -8,12 +8,13 @@ import DashboardView from './components/Dashboard/DashboardView';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Start with false
-  
-  //chaque fois que l'etat isDarkMode change l'attribut data-theme est mis à jour dans le HTML pour appliquer le bon thème via CSS.
-  useEffect(() => {document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');}, [isDarkMode]);
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // ← null = not yet checked
+  const [loading, setLoading] = useState(true); // ← new loading state
 
-  //inverser le mode claire et sombre et le Sauvegarde dans locaStorage
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
   const toggleTheme = () => {
     setIsDarkMode(prevMode => {
       const newMode = !prevMode;
@@ -22,64 +23,62 @@ function App() {
     });
   };
 
-  // Check authentication status whenever the component mounts or localStorage changes
   useEffect(() => {
     const checkAuth = () => {
       const authStatus = localStorage.getItem('isAuthenticated') === 'true';
       setIsAuthenticated(authStatus);
+      setLoading(false); // ← we're done checking
     };
 
-    // Check initial auth status
     checkAuth();
-
-    // Add event listener for localStorage changes
     window.addEventListener('storage', checkAuth);
 
-    // Check saved theme
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setIsDarkMode(savedTheme === 'dark');
     }
 
-    // Cleanup
     return () => {
       window.removeEventListener('storage', checkAuth);
     };
   }, []);
 
+  if (loading) return null; // ← wait before rendering routes (or show spinner)
+
   return (
-    <div className={`app ${isDarkMode ? 'dark' : 'light'}`} >
+    <div className={`app ${isDarkMode ? 'dark' : 'light'}`}>
       <BrowserRouter>
         <Routes>
-          <Route 
-            path="/login" 
+          {/* Login Route */}
+          <Route
+            path="/login"
             element={
               isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <LoginPage 
-                  isDarkMode={isDarkMode} 
-                  toggleTheme={toggleTheme}
-                />
-              )
-            } 
-          />
-          <Route
-            path="/*"
-            element={
-              isAuthenticated ? (
-                <MainLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme}>
-                  <Routes>
-                    <Route path="/dashboard" element={<DashboardList />} />
-                    <Route path="/setup/feeds" element={<FeedsList />} />
-                    <Route path="/dashboard/:type" element={<DashboardView />} />
-                  </Routes>
-                </MainLayout>
-              ) : (
-                <Navigate to="/login" replace />
+                <LoginPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
               )
             }
           />
+
+          {/* Protected Routes */}
+          {isAuthenticated && (
+            <Route
+              path="/"
+              element={
+                <MainLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              }
+            >
+              <Route path="dashboard" element={<DashboardList />} />
+              <Route path="setup/feeds" element={<FeedsList />} />
+              <Route path="dashboard/:type" element={<DashboardView />} />
+            </Route>
+          )}
+
+          {/* Catch unauthenticated access */}
+          {!isAuthenticated && (
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          )}
         </Routes>
       </BrowserRouter>
     </div>

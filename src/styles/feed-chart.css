@@ -292,19 +292,22 @@
 
 .chart-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content:space-between;
+  align-items:center;
   gap: 5px;
   margin-bottom: 8px;
 }
 
 .chart-type-selector {
   display: flex;
+  width: fit-content;
   gap: 4px;
   flex-wrap: wrap;
   padding: 4px;
   background-color: var(--background-default);
   border-radius: 8px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .chart-type-option {
@@ -379,6 +382,7 @@
   padding: 4px;
   background-color: var(--background-default);
   border-radius: 8px;
+  width: fit-content;
 }
 
 .time-range-option {
