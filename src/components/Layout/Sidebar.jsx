@@ -27,59 +27,17 @@ const Sidebar = () => {
     window.location.href = '/login'; // Using window.location to force a full page reload
   };
 
-  const extrasItems = [
-    { text: 'Schedule', icon: <ScheduleIcon />, path: '/extras/schedule' },
-    { text: 'Event', icon: <EventIcon />, path: '/extras/event' },
-    { text: 'Visualization', icon: <VisualizationIcon />, path: '/extras/visualization' },
-    { text: 'Email Reports', icon: <EmailIcon />, path: '/extras/email-reports' },
-  ];
-
   const setupItems = [
     { text: 'Inputs', icon: <InputIcon />, path: '/setup/inputs' },
     { text: 'Feeds', icon: <FeedsIcon />, path: '/setup/feeds' },
-    { text: 'Graphs', icon: <GraphsIcon />, path: '/setup/graphs' },
     { text: 'Dashboards', icon: <DashboardIcon />, path: '/dashboard' },
   ];
 
   return (
     <div className="sidebar">
       <div className="sidebar-section">
-        <button className="sidebar-item" onClick={() => navigate('/dashboard')}>
-          <DashboardIcon />
-          <span>Dashboards</span>
-        </button>
 
         <div className="sidebar-group">
-          <button className="sidebar-item" onClick={() => setExtrasOpen(!extrasOpen)}>
-            <ExtrasIcon />
-            <span>Extras</span>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{extrasOpen ? <ExpandLess /> : <ExpandMore />}
-          </button>
-          
-          {extrasOpen && (
-            <div className="sidebar-submenu">
-              {extrasItems.map((item) => (
-                <button
-                  key={item.text}
-                  className="sidebar-item submenu-item"
-                  onClick={() => navigate(item.path)}
-                >
-                  {item.icon}
-                  <span>{item.text}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="sidebar-group">
-          <button className="sidebar-item" onClick={() => setSetupOpen(!setupOpen)}>
-            <SettingsIcon />
-            <span>Setup</span>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{setupOpen ? <ExpandLess /> : <ExpandMore />}
-          </button>
-          
-          {setupOpen && (
             <div className="sidebar-submenu">
               {setupItems.map((item) => (
                 <button
@@ -92,7 +50,6 @@ const Sidebar = () => {
                 </button>
               ))}
             </div>
-          )}
         </div>
       </div>
 

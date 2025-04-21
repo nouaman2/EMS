@@ -124,4 +124,12 @@ input:checked + .slider:before {
 .theme-toggle {
   width: 25px;
   height: 25px;
-} 
+}
+
+.navbar-username {
+  margin-right: 10px;
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text-primary, #333);
+}

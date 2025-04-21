@@ -1,10 +1,23 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Brightness4 as DarkIcon, Brightness7 as LightIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DashboardSelector from '../DashboardSelector';
 
 const Navbar = ({ toggleTheme, isDarkMode }) => {
+  const [username, setUsername] = useState('');
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Retrieve the username from localStorage
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -14,8 +27,8 @@ const Navbar = ({ toggleTheme, isDarkMode }) => {
       </div>
 
       <div className="navbar-right">
-        <IconButton 
-          onClick={toggleTheme} 
+        <IconButton
+          onClick={toggleTheme}
           className="icon-button"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
@@ -30,16 +43,20 @@ const Navbar = ({ toggleTheme, isDarkMode }) => {
           <span className="theme-label" style={{ fontWeight: 'bold' }}>{isDarkMode ? "Dark Mode" : "Light Mode"}</span>
         </div>
 
-        <IconButton 
+        <IconButton
           className="icon-button"
           title="Notifications"
         >
           <NotificationsIcon className="icon" />
         </IconButton>
 
-        <IconButton 
+        {/* Display the username */}
+        {username && <span className="navbar-username">{username}</span>}
+
+        <IconButton
           className="icon-button"
           title="Profile"
+          onClick={() => navigate('/profile')} // Navigate to profile page
         >
           <AccountCircleIcon className="icon" />
         </IconButton>

@@ -4,8 +4,10 @@ import MainLayout from './components/Layout/MainLayout';
 import FeedsList from './components/Feeds/FeedsList';
 import DashboardList from './components/Dashboard/DashboardList';
 import LoginPage from './components/Auth/LoginPage';
+import RegisterPage from './components/Auth/RegisterPage'; // Import RegisterPage
 import DashboardView from './components/Dashboard/DashboardView';
 import InputList from './components/inputs/inputList';
+import ProfilePage from './components/Auth/ProfilePage'; 
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -58,6 +60,29 @@ function App() {
                 <Navigate to="/dashboard" replace />
               ) : (
                 <LoginPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              )
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated ? (
+                <ProfilePage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Register Route */}
+          <Route
+            path="/register"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <RegisterPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
               )
             }
           />
