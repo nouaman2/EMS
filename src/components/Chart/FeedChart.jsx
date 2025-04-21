@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Chart } from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
@@ -12,6 +12,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
+  const [isDashboard, setIsDashboard]=useState(false);
 
   const chartTypes = [
     {
@@ -217,7 +218,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
             )
             : [];
 
-          //console.log('OneBlock-Feeds');
+          // console.log('dashboards-Feeds');
           const filteredData = filterDataByTimeRange(validData);
           //console.log(filteredData)
           
@@ -228,6 +229,8 @@ const FeedChart = ({ data, feedName,timeRange }) => {
             y: point[1]
           }));
 
+          // console.log(formattedData)
+          if (formattedData.length > 0) setIsDashboard(true);
           let baseConfig = {
             label: d.label || `Dataset ${i + 1}`,
             data: formattedData,
@@ -293,9 +296,10 @@ const FeedChart = ({ data, feedName,timeRange }) => {
           : [];
 
         const filteredData = filterDataByTimeRange(validData);
-
+        
         const downsampledData = downsampleData(filteredData, 1000);
-
+        if (filteredData.length > 0) setIsDashboard(false)
+        
         const formattedData = downsampledData.map(point => ({
           x: point[0],
           y: point[1]
@@ -434,7 +438,6 @@ const FeedChart = ({ data, feedName,timeRange }) => {
               <svg className="action-button-icon" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
               </svg>
-              <span>Export</span>
             </button>
           </div>
         </div>
@@ -454,25 +457,27 @@ const FeedChart = ({ data, feedName,timeRange }) => {
       <div className="chart-wrapper">
         <canvas ref={chartRef} />
       </div>
-      {/* Affichage des statistiques */}
-      <div className="chart-stats">
-        <div className="stat-block">
-          <div className="stat-label">Average</div>
-          <div className="stat-value">{stats.average}</div>
+      {/* Conditionally render statistics */}
+      {!isDashboard && (
+        <div className="chart-stats">
+          <div className="stat-block">
+            <div className="stat-label">Average</div>
+            <div className="stat-value">{stats.average}</div>
+          </div>
+          <div className="stat-block">
+            <div className="stat-label">Minimum</div>
+            <div className="stat-value">{stats.minimum}</div>
+          </div>
+          <div className="stat-block">
+            <div className="stat-label">Maximum</div>
+            <div className="stat-value">{stats.maximum}</div>
+          </div>
+          <div className="stat-block">
+            <div className="stat-label">Total</div>
+            <div className="stat-value">{stats.total}</div>
+          </div>
         </div>
-        <div className="stat-block">
-          <div className="stat-label">Minimum</div>
-          <div className="stat-value">{stats.minimum}</div>
-        </div>
-        <div className="stat-block">
-          <div className="stat-label">Maximum</div>
-          <div className="stat-value">{stats.maximum}</div>
-        </div>
-        <div className="stat-block">
-          <div className="stat-label">Total</div>
-          <div className="stat-value">{stats.total}</div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

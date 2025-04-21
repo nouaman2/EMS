@@ -16,6 +16,7 @@
   display: flex;
   gap: 8px;
 }
+
 /* Controls Container */
 .chart-controls-container {
   display: flex;
@@ -28,10 +29,14 @@
 
 /* Action Buttons Container */
 .chart-actions {
+  position: absolute;
+  /* Position the export button absolutely */
+  top: 0;
+  /* Align to the top */
+  right: 0;
+  /* Align to the right */
   display: flex;
   gap: 4px;
-  margin-left: auto;
-  /* Push to the right */
 }
 
 /* Action Button Styling */
@@ -44,7 +49,7 @@
   border-radius: 8px;
   font-size: 8px;
   font-weight: 500;
-  width:75px;
+  width: 35px;
   cursor: pointer;
   transition: all 0.2s ease;
   height: 25px;
@@ -254,12 +259,12 @@
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .time-range-controls {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .chart-actions {
     width: 100%;
     justify-content: space-between;
@@ -274,15 +279,15 @@
     min-width: calc(50% - 4px);
     padding: 12px;
   }
-  
+
   .stat-label {
     font-size: 0.8rem;
   }
-  
+
   .stat-value {
     font-size: 1.2rem;
   }
-  
+
   .chart-wrapper {
     min-height: 300px;
   }
@@ -293,10 +298,11 @@
 .chart-header {
   display: flex;
   flex-direction: row;
-  justify-content:space-between;
-  align-items:center;
+  align-items: center;
   gap: 5px;
   margin-bottom: 8px;
+  position: relative;
+  /* Add relative positioning for the container */
 }
 
 .chart-type-selector {
@@ -364,11 +370,11 @@
   .chart-type-selector {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .chart-type-option {
     padding: 6px 10px;
   }
-  
+
   .chart-type-option span {
     font-size: 0.8rem;
   }
@@ -398,7 +404,7 @@
   font-size: 8px;
   font-weight: 500;
   transition: all 0.2s ease;
-  min-width: 70px;
+  min-width: 45px;
   justify-content: center;
 }
 

@@ -4,7 +4,7 @@
     font-family: Arial, sans-serif;
     font-size: 12px;
     /* Reduced font size */
-    color: var(--text-primary, #333);
+    color: var(--text-primary, #303030);
     background-color: var(--bg-primary, #fff);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -125,7 +125,7 @@
 /* Dark mode styles */
 [data-theme='dark'] .input-list {
     color: var(--text-primary-dark, #ddd);
-    background-color: var(--bg-primary-dark, #2c2c2c);
+    background-color: var(--bg-primary-dark, #202020);
 }
 
 [data-theme='dark'] .node {
@@ -133,7 +133,7 @@
 }
 
 [data-theme='dark'] .node-header {
-    background-color: var(--bg-secondary-dark, #3c3c3c);
+    background-color: var(--bg-secondary-dark, #272727);
 }
 
 [data-theme='dark'] .node-header:hover {

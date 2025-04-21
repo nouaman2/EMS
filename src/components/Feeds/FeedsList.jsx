@@ -12,6 +12,13 @@ const FeedsList = () => {
   const [selectedFeed, setSelectedFeed] = useState(null);
   const [timeRange, setTimeRange] = useState('1m');
 
+  const timeRanges = {
+    '24h': 'D',
+    '1w': 'W',
+    '1m': 'M',
+    'y': 'Y'
+  };
+  
   useEffect(() => {
     const fetchFeeds = async () => {
       try {
@@ -162,16 +169,16 @@ const FeedsList = () => {
             <div className="chart-container">
               <h3 className="chart-title">{selectedFeed.name}</h3>
               <div className="time-range-selector">
-                {[ '24h', '1w', '1m', 'y'].map((range) => (
+                {Object.entries(timeRanges).map(([value, label]) => (
                   <button
-                    key={range}
-                    className={`time-range-option ${timeRange === range ? 'active' : ''}`}
+                    key={value}
+                    className={`time-range-option ${timeRange === value ? 'active' : ''}`}
                     onClick={() => {
-                      setTimeRange(range);
-                      handleFeedClick(selectedFeed,range);
+                      setTimeRange(value);
+                      handleFeedClick(selectedFeed,value);
                     }}
                   >
-                    {range}
+                    {label}
                   </button>
                 ))}
               </div>

@@ -14,6 +14,12 @@ const DashboardView = () => {
 
   console.log('DashboardView type:', type); // Log the type parameter for debugging
 
+  const timeRanges = {
+  '24h': 'D',
+  '1w': 'W',
+  '1m': 'M',
+  'y': 'Y'
+};
   // Function to fetch Multipuissance data
   const fetchDashboardData = async (selectedTimeRange) => {
     try {
@@ -58,13 +64,13 @@ const DashboardView = () => {
       <div className="feeds-chart-area">
         <div className="chart-container">
           <div className="time-range-selector">
-            {['24h', '1w', '1m', 'y'].map((range) => (
+            {Object.entries(timeRanges).map(([value, label]) => (
               <button
-                key={range}
-                className={`time-range-option ${timeRange === range ? 'active' : ''}`}
-                onClick={() => setTimeRange(range)} // Update the time range
+                key={value}
+                className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                onClick={() => setTimeRange(value)}
               >
-                {range}
+                {label}
               </button>
             ))}
           </div>
