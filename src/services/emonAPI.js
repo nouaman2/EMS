@@ -104,7 +104,7 @@ export const getFeedData = async (feedId, timeRange) => {
 
 
 // Function to fetch data for specific dashboard types
-export const getDashboardTypeData = async (dashboardType,timeRange) => {
+export const getDashboardTypeData = async (dashboardType, timeRange) => {
   try {
     // Calculate time range
     const now = Math.floor(Date.now() / 1000);
@@ -334,5 +334,52 @@ export const checkAvailableFeeds = async () => {
   } catch (error) {
     console.error('Error checking feeds:', error);
     return [];
+  }
+};
+
+export const getInputList = async () => {
+  try {
+    const targetUrl = `${BASE_URL}/input/list.json&apikey=${WRITE_API_KEY}`;
+    const response = await fetch(targetUrl);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch input list');
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      console.error('Invalid input list format:', data);
+      return {};
+    }
+
+    // Group inputs by nodeid
+    const groupedInputs = data.reduce((acc, input) => {
+      const node = input.nodeid !== undefined && input.nodeid !== null
+        ? `Node ${input.nodeid}`
+        : 'Node 0'; // Default to "Node 0" if nodeid is missing or invalid
+      if (!acc[node]) {
+        acc[node] = [];
+      }
+      acc[node].push(input);
+      return acc;
+    }, {});
+
+    // Sort nodes numerically (e.g., Node 0, Node 1, Node 2, ...)
+    const sortedNodes = Object.keys(groupedInputs)
+      .sort((a, b) => {
+        const nodeA = parseInt(a.replace('Node ', ''), 10);
+        const nodeB = parseInt(b.replace('Node ', ''), 10);
+        return nodeA - nodeB;
+      })
+      .reduce((sortedAcc, node) => {
+        sortedAcc[node] = groupedInputs[node];
+        return sortedAcc;
+      }, {});
+
+    return sortedNodes;
+  } catch (error) {
+    console.error('Error fetching input list:', error);
+    throw error;
   }
 };

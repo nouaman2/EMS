@@ -45,17 +45,18 @@ const DashboardView = () => {
   // Fetch data when the component mounts or when the time range changes
   useEffect(() => {
     fetchDashboardData(timeRange); // Fetch Multipuissance data
-    fetchTensionData(timeRange); // Fetch TENSION data
+    if (type !== 'Multicourants') {
+      fetchTensionData(timeRange); // Fetch TENSION data only if not Multicourants
+    }
   }, [type, timeRange]);
 
-  if (loading || tensionLoading) return <div className="loading">Loading dashboard...</div>;
+  if (loading || (type !== 'Multicourants' && tensionLoading)) return <div className="loading">Loading dashboard...</div>;
   if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="dashboard-view">
       <div className="feeds-chart-area">
         <div className="chart-container">
-          <h2 className="dashboard-title">{type}</h2> {/* Display the dashboard name */}
           <div className="time-range-selector">
             {['24h', '1w', '1m', 'y'].map((range) => (
               <button
@@ -79,15 +80,16 @@ const DashboardView = () => {
           />
         </div>
 
-        {/* TENSION Chart */}
-        <div className="chart-container">
-          <h2 className="dashboard-title">TENSION</h2> {/* Display the TENSION title */}
-          <FeedChart
-            data={tensionData}
-            feedName="TENSION" // Use "TENSION" as the feed name
-            timeRange={timeRange} // Pass the selected time range to the chart
-          /> 
-        </div>
+        {/* Conditionally Render TENSION Chart */}
+        {type == '1_MULTIPUISSANCES' && (
+          <div className="chart-container">
+            <FeedChart
+              data={tensionData}
+              feedName="TENSION" // Use "TENSION" as the feed name
+              timeRange={timeRange} // Pass the selected time range to the chart
+            />
+          </div>
+        )}
       </div>
     </div>
   );
