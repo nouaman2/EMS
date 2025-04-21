@@ -7,6 +7,7 @@ const FeedsList = () => {
   const [feeds, setFeeds] = useState([]);
   const [expandedNodes, setExpandedNodes] = useState({});
   const [loading, setLoading] = useState(true);
+  const [chartLoading,setChartLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFeed, setSelectedFeed] = useState(null);
   const [timeRange, setTimeRange] = useState('1m');
@@ -58,6 +59,7 @@ const FeedsList = () => {
 
   const handleFeedClick = async (feed,newTimeRange) => {
     try {
+      setChartLoading(true);
       const data = await getFeedData(feed.id, newTimeRange);
       if (data && Array.isArray(data) && data.length > 0) {
         setSelectedFeed({
@@ -76,6 +78,8 @@ const FeedsList = () => {
         ...feed,
         chartData: []
       });
+    } finally {
+      setChartLoading(false);
     }
   };
 
@@ -172,11 +176,13 @@ const FeedsList = () => {
                 ))}
               </div>
 
-              {selectedFeed.chartData && selectedFeed.chartData.length > 0 ? (
+              {chartLoading ? (
+                <div className="feeds-loading">Loading chart...</div>
+              ) : selectedFeed.chartData && selectedFeed.chartData.length > 0 ? (
                 <FeedChart
                   data={selectedFeed.chartData}
                   feedName={selectedFeed.name}
-                  timeRange={timeRange} 
+                  timeRange={timeRange}
                 />
               ) : (
                 <div className="no-data-message">

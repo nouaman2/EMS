@@ -1,35 +1,54 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import FeedChart from '../Chart/FeedChart';
-import { getDashboardTypeData } from '../../services/emonAPI';
+import { getDashboardTypeData, getFeedData } from '../../services/emonAPI';
 
 const DashboardView = () => {
   const { type } = useParams(); // Get the dynamic "type" parameter from the URL
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true); // Loading state for Multipuissance
+  const [tensionLoading, setTensionLoading] = useState(true); // Loading state for TENSION
   const [error, setError] = useState(null); // Error state
-  const [chartData, setChartData] = useState(null); // Chart data state
-  const [timeRange, setTimeRange] = useState('1m');
+  const [chartData, setChartData] = useState(null); // Chart data state for Multipuissance
+  const [tensionData, setTensionData] = useState(null); // Chart data state for TENSION
+  const [timeRange, setTimeRange] = useState('1m'); // Time range state
 
   console.log('DashboardView type:', type); // Log the type parameter for debugging
+
+  // Function to fetch Multipuissance data
   const fetchDashboardData = async (selectedTimeRange) => {
     try {
       setLoading(true);
-      const data = await getDashboardTypeData(type,selectedTimeRange); // Appel API avec le timeRange
-      setChartData(data); // Met à jour les données du graphique
+      const data = await getDashboardTypeData(type, selectedTimeRange); // Fetch Multipuissance data
+      setChartData(data); // Update Multipuissance chart data
       setLoading(false);
     } catch (err) {
-      setError(`Failed to load data for dashboard: ${type}`); // Définit le message d'erreur
+      setError(`Failed to load data for dashboard: ${type}`);
       setLoading(false);
       console.error('Error fetching dashboard data:', err);
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData(timeRange); // Appelle la fonction avec le timeRange actuel
-  }, [type] );
+  // Function to fetch TENSION data
+  const fetchTensionData = async (selectedTimeRange) => {
+    try {
+      setTensionLoading(true);
+      const data = await getFeedData(28, selectedTimeRange); // Fetch TENSION data using feedId 28
+      setTensionData(data); // Update TENSION chart data
+      setTensionLoading(false);
+    } catch (err) {
+      setError('Failed to load TENSION data');
+      setTensionLoading(false);
+      console.error('Error fetching TENSION data:', err);
+    }
+  };
 
-  if (loading) return <div className="loading">Loading dashboard...</div>;
+  // Fetch data when the component mounts or when the time range changes
+  useEffect(() => {
+    fetchDashboardData(timeRange); // Fetch Multipuissance data
+    fetchTensionData(timeRange); // Fetch TENSION data
+  }, [type, timeRange]);
+
+  if (loading || tensionLoading) return <div className="loading">Loading dashboard...</div>;
   if (error) return <div className="error">{error}</div>;
 
   return (
@@ -42,15 +61,14 @@ const DashboardView = () => {
               <button
                 key={range}
                 className={`time-range-option ${timeRange === range ? 'active' : ''}`}
-                onClick={() => {
-                  setTimeRange(range);
-                  fetchDashboardData(range);
-                }}
+                onClick={() => setTimeRange(range)} // Update the time range
               >
                 {range}
               </button>
             ))}
           </div>
+
+          {/* Multipuissance Chart */}
           <FeedChart
             data={chartData.datasets.map((d) => ({
               label: d.label,
@@ -59,6 +77,16 @@ const DashboardView = () => {
             feedName={type} // Use the "type" as the feed name
             timeRange={timeRange} // Pass the selected time range to the chart
           />
+        </div>
+
+        {/* TENSION Chart */}
+        <div className="chart-container">
+          <h2 className="dashboard-title">TENSION</h2> {/* Display the TENSION title */}
+          <FeedChart
+            data={tensionData}
+            feedName="TENSION" // Use "TENSION" as the feed name
+            timeRange={timeRange} // Pass the selected time range to the chart
+          /> 
         </div>
       </div>
     </div>

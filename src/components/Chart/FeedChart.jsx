@@ -12,7 +12,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
-  
+
   const chartTypes = [
     {
       id: 'line',
@@ -106,6 +106,11 @@ const FeedChart = ({ data, feedName,timeRange }) => {
     }
   };
 
+  const downsampleData = (data, maxPoints) => {
+    if (data.length <= maxPoints) return data;
+    const factor = Math.ceil(data.length / maxPoints);
+    return data.filter((_, index) => index % factor === 0);
+  };
 
   // Gère le changement de type de graphique
   const handleChartTypeChange = (type) => setChartType(type);
@@ -214,8 +219,11 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
           //console.log('OneBlock-Feeds');
           const filteredData = filterDataByTimeRange(validData);
+          //console.log(filteredData)
+          
+          const downsampledData = downsampleData(filteredData, 1000);
 
-          const formattedData = filteredData.map(point => ({
+          const formattedData = downsampledData.map(point => ({
             x: point[0],
             y: point[1]
           }));
@@ -259,9 +267,9 @@ const FeedChart = ({ data, feedName,timeRange }) => {
         : (data.every(item => Array.isArray(item) && item.length === 2 && typeof item[0] === 'number' && typeof item[1] === 'number'))
           ? [{
             label: `${feedName}`,
-            data: filterDataByTimeRange(data).map(point => ({
+            data: downsampleData(filterDataByTimeRange(data), 1000).map(point => ({
               x: point[0],
-              y: point[1]
+              y: point[1],
             })),
             borderColor: defaultColors[0].border,
             backgroundColor: defaultColors[0].bg,
@@ -286,11 +294,12 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
         const filteredData = filterDataByTimeRange(validData);
 
-        const formattedData = filteredData.map(point => ({
+        const downsampledData = downsampleData(filteredData, 1000);
+
+        const formattedData = downsampledData.map(point => ({
           x: point[0],
           y: point[1]
         }));
-
         let baseConfig = {
           label: data.label || `${feedName}`,
           data: formattedData,
@@ -334,7 +343,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
       '1w': 'day',
       '1m': 'day',
       '2m': 'week',
-      'y':'year',
+      'y':'month',
     }[timeRange];
 
     //console.log(datasets);
@@ -404,9 +413,9 @@ const FeedChart = ({ data, feedName,timeRange }) => {
         },
       },
     });
-    
+
     return () => {
-      if (chartInstance.current) {
+      if (chartInstance) {
         chartInstance.current.destroy();
       }
     };
