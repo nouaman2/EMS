@@ -231,16 +231,17 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
           // console.log(formattedData)
           if (formattedData.length > 0) setIsDashboard(true);
+          //chart config for dashboards
           let baseConfig = {
             label: d.label || `Dataset ${i + 1}`,
             data: formattedData,
             borderColor: d.borderColor || defaultColors[i % defaultColors.length].border,
             backgroundColor: d.backgroundColor || defaultColors[i % defaultColors.length].bg,
-            borderWidth: 0.9,
+            borderWidth: 0.6,
             spanGaps: true,
             tension: 0.3,
             fill: true,
-            pointRadius: 1,
+            pointRadius: 0,
             pointHoverRadius: 6,
           };
 
@@ -267,6 +268,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
           return baseConfig;
         })
+        //chart config for feeds
         : (data.every(item => Array.isArray(item) && item.length === 2 && typeof item[0] === 'number' && typeof item[1] === 'number'))
           ? [{
             label: `${feedName}`,
@@ -280,8 +282,8 @@ const FeedChart = ({ data, feedName,timeRange }) => {
             spanGaps: true,
             tension: 0.3,
             fill: true,
-            pointRadius: 1,
-            pointHoverRadius: 6,
+            pointRadius: 0,
+            pointHoverRadius: 3,
           }]
           : []
       : (() => {
@@ -309,12 +311,12 @@ const FeedChart = ({ data, feedName,timeRange }) => {
           data: formattedData,
           borderColor: data.borderColor || defaultColors[0].border,
           backgroundColor: data.backgroundColor || defaultColors[0].bg,
-          borderWidth: 2,
+          borderWidth: 1,
           spanGaps: true,
           tension: 0.3,
           fill: false,
-          pointRadius: 2,
-          pointHoverRadius: 6,
+          pointRadius: 1,
+          pointHoverRadius: 1,
         };
 
         switch (chartType) {

@@ -19,7 +19,8 @@ const DashboardView = () => {
   '1w': 'W',
   '1m': 'M',
   'y': 'Y'
-};
+  };
+  
   // Function to fetch Multipuissance data
   const fetchDashboardData = async (selectedTimeRange) => {
     try {
