@@ -40,7 +40,7 @@
 }
 
 .feeds-chart-area {
-    width: 40rem;
+    width: fit-content;
 }
 
 .feeds-chart-container{

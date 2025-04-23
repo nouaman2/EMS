@@ -159,7 +159,7 @@
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   padding: 16px;
-  margin-top:20px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -387,4 +387,3 @@
 [data-theme="dark"] .chart-wrapper {
   background-color: #1e1e1e;
 }
-

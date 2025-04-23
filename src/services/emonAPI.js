@@ -54,7 +54,7 @@ export const getFeedsList = async () => {
 };
 
 // fonction pour récupérer les données du graphique
-export const getFeedData = async (feedId, timeRange) => {
+export const getFeedData = async (feedId, timeRange,intervaldefined,skipmissing) => {
   try {
     const now = Math.floor(Date.now() / 1000); // current time in seconds
 
@@ -79,17 +79,30 @@ export const getFeedData = async (feedId, timeRange) => {
     const end = now * 1000; // in milliseconds
     const start = (now - duration) * 1000; // also in milliseconds
 
-    const targetUrl = `${BASE_URL}/feed/data.json?` +
-      `id=${feedId}&` +
-      `start=${start}&` +
-      `end=${end}&` +
-      `interval=${interval}&` +
-      `skipmissing=1&` +
-      `limitinterval=1&` +
-      `apikey=${API_KEY}`;
+    let targetUrl = ``;
+    if (intervaldefined && skipmissing) {
+      //console.log('cons')
+        targetUrl = `${BASE_URL}/feed/data.json?` +
+          `id=${feedId}&` +
+          `start=${start}&` +
+          `end=${end}&` +
+          `interval=${intervaldefined}&` +
+          `skipmissing=${skipmissing}&` +
+          `limitinterval=1&` +
+          `apikey=${API_KEY}`;
+    } else {
+        targetUrl = `${BASE_URL}/feed/data.json?` +
+          `id=${feedId}&` +
+          `start=${start}&` +
+          `end=${end}&` +
+          `interval=${interval}&` +
+          `skipmissing=1&` +
+          `limitinterval=1&` +
+          `apikey=${API_KEY}`;
+    }
 
     const response = await axios.get(`${targetUrl}`);
-
+    console.log('Response data:', response.data);
     if (!response.data || !Array.isArray(response.data)) {
       console.error('Invalid data format received:', response.data);
       return [];

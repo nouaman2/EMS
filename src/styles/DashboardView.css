@@ -1,0 +1,19 @@
+.feeds-chart-container-consommation{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px;
+}
+.iframe-consommation{
+    width: 37rem;
+}
+.no-data-message{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 1.5rem;
+    color: #888;
+    font-weight: 500;
+    width: 50rem;
+}

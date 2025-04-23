@@ -6,13 +6,13 @@ import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
 import '../../styles/feed-chart.css';
 
-const FeedChart = ({ data, feedName,timeRange }) => {
+const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
   //console.log('FeedChart received data:', data);
   // console.log(timeRange)
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
-  const [isDashboard, setIsDashboard]=useState(false);
+  const [isDashboard, setIsDashboard] = useState(false);
 
   const chartTypes = [
     {
@@ -157,6 +157,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
     let allPoints = [];
 
+
     // If it's One Block (array of datasets)
     if (Array.isArray(data) && typeof data[0] === 'object' && data[0].hasOwnProperty('data')) {
       data.forEach(dataset => {
@@ -173,7 +174,6 @@ const FeedChart = ({ data, feedName,timeRange }) => {
       new Date(point[0]).toISOString(),
       point[1]
     ]);
-
     
     const csvContent = [['Timestamp', 'Value'], ...allRows]
       .map(row => row.join(','))
@@ -218,7 +218,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
             )
             : [];
 
-          // console.log('dashboards-Feeds');
+          //console.log('dashboards-Feeds');
           const filteredData = filterDataByTimeRange(validData);
           //console.log(filteredData)
           
@@ -229,7 +229,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
             y: point[1]
           }));
 
-          // console.log(formattedData)
+          //console.log(formattedData)
           if (formattedData.length > 0) setIsDashboard(true);
           //chart config for dashboards
           let baseConfig = {
@@ -287,6 +287,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
           }]
           : []
       : (() => {
+        //console.log('feeds')
         // 🧠 Fallback for single dataset object (not array)
         const validData = Array.isArray(data?.data)
           ? data.data.filter(point =>
@@ -297,6 +298,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
           )
           : [];
 
+        //console.log(validData)
         const filteredData = filterDataByTimeRange(validData);
         
         const downsampledData = downsampleData(filteredData, 1000);
@@ -306,6 +308,8 @@ const FeedChart = ({ data, feedName,timeRange }) => {
           x: point[0],
           y: point[1]
         }));
+
+        //console.log(filteredData)
         let baseConfig = {
           label: data.label || `${feedName}`,
           data: formattedData,
@@ -429,7 +433,6 @@ const FeedChart = ({ data, feedName,timeRange }) => {
 
   const stats = calculateStats();
 
-  // Rendu du composant
   return (
     <div className="feed-chart-container">
       {/* En-tête avec contrôles */}
@@ -460,7 +463,7 @@ const FeedChart = ({ data, feedName,timeRange }) => {
         <canvas ref={chartRef} />
       </div>
       {/* Conditionally render statistics */}
-      {!isDashboard && (
+      {!isDashboard || isTimeRangeAppear ||(
         <div className="chart-stats">
           <div className="stat-block">
             <div className="stat-label">Average</div>

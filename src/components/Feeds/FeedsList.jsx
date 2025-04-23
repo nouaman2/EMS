@@ -1,29 +1,32 @@
-
 import { useState, useEffect } from 'react';
 import { getFeedsList, getFeedData } from '../../services/emonAPI';
 import FeedChart from '../Chart/FeedChart';
+import '../../styles/FeedsList.css';
 
 const FeedsList = () => {
   const [feeds, setFeeds] = useState([]);
   const [expandedNodes, setExpandedNodes] = useState({});
   const [loading, setLoading] = useState(true);
-  const [chartLoading,setChartLoading] = useState(false);
+  const [chartLoading, setChartLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFeed, setSelectedFeed] = useState(null);
   const [timeRange, setTimeRange] = useState('1m');
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [filteredFeeds, setFilteredFeeds] = useState([]); // State for filtered feeds
 
   const timeRanges = {
     '24h': 'D',
     '1w': 'W',
     '1m': 'M',
-    'y': 'Y'
+    'y': 'Y',
   };
-  
+
   useEffect(() => {
     const fetchFeeds = async () => {
       try {
         const data = await getFeedsList();
         setFeeds(data);
+        setFilteredFeeds(data); // Initialize filtered feeds
       } catch {
         setError('Failed to load feeds');
       } finally {
@@ -33,7 +36,7 @@ const FeedsList = () => {
     fetchFeeds();
   }, []);
 
-  const groupedFeeds = feeds.reduce((acc, feed) => {
+  const groupedFeeds = filteredFeeds.reduce((acc, feed) => {
     const tag = feed.tag || 'Untagged';
     acc[tag] = acc[tag] || [];
     acc[tag].push(feed);
@@ -64,7 +67,7 @@ const FeedsList = () => {
     }
   };
 
-  const handleFeedClick = async (feed,newTimeRange) => {
+  const handleFeedClick = async (feed, newTimeRange) => {
     try {
       setChartLoading(true);
       const data = await getFeedData(feed.id, newTimeRange);
@@ -90,6 +93,24 @@ const FeedsList = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    // Filter feeds based on the search term
+    const filtered = feeds.filter((feed) =>
+      feed.name.toLowerCase().includes(term)
+    );
+    setFilteredFeeds(filtered);
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter' && filteredFeeds.length === 1) {
+      // Automatically show the chart for the single matching feed
+      handleFeedClick(filteredFeeds[0]);
+    }
+  };
+
   if (loading) {
     return <div className="feeds-loading">Loading...</div>;
   }
@@ -98,69 +119,79 @@ const FeedsList = () => {
     return <div className="feeds-error">{error}</div>;
   }
 
-  if (!Object.keys(groupedFeeds).length) {
-    return <div className="feeds-empty">No feeds available</div>;
-  }
   return (
     <div className="feeds-container">
       <h3 className="feeds-title">Feeds By Node</h3>
+
+      {/* Search Bar */}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search for a feed..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="search-input"
+        />
+      </div>
+
       <div className="feeds-layout">
         <div className="feeds-sidebar">
           <div className="feeds-list">
-            {Object.entries(groupedFeeds).map(([node, feeds]) => (
-              <div key={node} className="feed-node">
-                <button 
-                  className="node-header" 
-                  onClick={() => toggleNode(node)}
-                >
-                  <span className="node-title">{`${node} (${feeds.length})`}</span>
-                  <span className={`expand-icon ${expandedNodes[node] ? 'expanded' : ''}`}>
-                    ▼
-                  </span>
-                </button>
+            {Object.keys(groupedFeeds).length === 0 ? (
+              <div className="feeds-empty">No feeds found</div>
+            ) : (
+              Object.entries(groupedFeeds).map(([node, feeds]) => (
+                <div key={node} className="feed-node">
+                  <button
+                    className="node-header"
+                    onClick={() => toggleNode(node)}
+                  >
+                    <span className="node-title">{`${node} (${feeds.length})`}</span>
+                    <span className={`expand-icon ${expandedNodes[node] ? 'expanded' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
 
-                {expandedNodes[node] && (
-                  <div className="node-content">
-                    {feeds.map((feed) => {
-                      const updateTime = getTimeDifference(feed.time);
-                      return (
-                        <button
-                          key={feed.id}
-                          className={`feed-item ${selectedFeed?.id === feed.id ? 'selected' : ''}`}
-                          onClick={() => handleFeedClick(feed)}
-                        >
-                          <div className="feed-item-header">
-                            <span className="feed-name">{feed.name}</span>
-                          </div>
-                          <div className="feed-item-details">
-                            <span className={`feed-value ${!feed.value ? 'no-value' : ''}`}>
-                              Value: {feed.value || 'N/A'}
-                              {feed.unit && ` ${feed.unit}`}
-                            </span>
-
-                            <span className={`feed-update ${updateTime.isRecent ? 'recent' : ''}`}>
-                              Updated: {updateTime.text}
-                            </span>
-
-                            {feed.datatype && (
-                              <span className="feed-type">
-                                Type: {feed.datatype}
+                  {expandedNodes[node] && (
+                    <div className="node-content">
+                      {feeds.map((feed) => {
+                        const updateTime = getTimeDifference(feed.time);
+                        return (
+                          <button
+                            key={feed.id}
+                            className={`feed-item ${selectedFeed?.id === feed.id ? 'selected' : ''}`}
+                            onClick={() => handleFeedClick(feed)}
+                          >
+                            <div className="feed-item-header">
+                              <span className="feed-name">{feed.name}</span>
+                            </div>
+                            <div className="feed-item-details">
+                              <span className={`feed-value ${!feed.value ? 'no-value' : ''}`}>
+                                Value: {feed.value || 'N/A'}
+                                {feed.unit && ` ${feed.unit}`}
                               </span>
-                            )}
-
-                            {feed.processList && (
-                              <span className="feed-process">
-                                Process: {feed.processList}
+                              <span className={`feed-update ${updateTime.isRecent ? 'recent' : ''}`}>
+                                Updated: {updateTime.text}
                               </span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
+                              {feed.datatype && (
+                                <span className="feed-type">
+                                  Type: {feed.datatype}
+                                </span>
+                              )}
+                              {feed.processList && (
+                                <span className="feed-process">
+                                  Process: {feed.processList}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -175,7 +206,7 @@ const FeedsList = () => {
                     className={`time-range-option ${timeRange === value ? 'active' : ''}`}
                     onClick={() => {
                       setTimeRange(value);
-                      handleFeedClick(selectedFeed,value);
+                      handleFeedClick(selectedFeed, value);
                     }}
                   >
                     {label}
@@ -194,16 +225,17 @@ const FeedsList = () => {
               ) : (
                 <div className="no-data-message">
                   <svg className="no-data-icon" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M11,15H13V17H11V15M11,7H13V13H11V7M12,2C6.47,2 2,6.5 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20Z" />
+                    <path
+                      fill="currentColor"
+                      d="M11,15H13V17H11V15M11,7H13V13H11V7M12,2C6.47,2 2,6.5 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20Z"
+                    />
                   </svg>
                   <span>No data available for this feed</span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="no-chart-message">
-              Select a feed to view its chart
-            </div>
+            <div className="no-chart-message">Select a feed to view its chart</div>
           )}
         </div>
       </div>
@@ -212,3 +244,4 @@ const FeedsList = () => {
 };
 
 export default FeedsList;
+
