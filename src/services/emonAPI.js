@@ -7,7 +7,7 @@ const WRITE_API_KEY = '02f316fd3b4a3a52a8e3ed7a5d7d9ac2';
 //recuperer la liste des tableaux de bord
 export const getDashboardList = async () => {
   try {
-    const targetUrl = `${BASE_URL}/dashboard/list.json?apikey=${WRITE_API_KEY}`;
+    const targetUrl = `/dashboard/list.json?apikey=${WRITE_API_KEY}`;
 
     const response = await axios.get(`${targetUrl}`);
 
@@ -30,7 +30,7 @@ export const getDashboardList = async () => {
 //recuperer les donnees d'un tableau de bord
 export const getDashboardData = async (dashboardId) => {
   try {
-    const targetUrl = `${BASE_URL}/dashboard/view.json?id=${dashboardId}&apikey=${WRITE_API_KEY}`;
+    const targetUrl = `/dashboard/view.json?id=${dashboardId}&apikey=${WRITE_API_KEY}`;
 
     const response = await axios.get(`${targetUrl}`);
     return response.data;
@@ -43,9 +43,27 @@ export const getDashboardData = async (dashboardId) => {
 //recuperer la liste des flux
 export const getFeedsList = async () => {
   try {
-    const targetUrl = `${BASE_URL}/feed/list.json?apikey=${API_KEY}`;
+    const cacheKey = 'feedsList';
+    const cacheTTLKey = 'feedsListTTL';
+    const cacheTTL = 60 * 60 * 1000; // 1 hour in milliseconds
 
-    const response = await axios.get(`${targetUrl}`);
+    // Check if data exists in localStorage and is still valid
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTTL = localStorage.getItem(cacheTTLKey);
+
+    if (cachedData && cachedTTL && Date.now() < parseInt(cachedTTL, 10)) {
+      console.log('Returning cached feeds list');
+      return JSON.parse(cachedData);
+    }
+
+    // Fetch data from the API
+    const targetUrl = `/feed/list.json?apikey=${API_KEY}`;
+    const response = await axios.get(targetUrl);
+
+    // Save data to localStorage with a TTL
+    localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    localStorage.setItem(cacheTTLKey, (Date.now() + cacheTTL).toString());
+
     return response.data;
   } catch (error) {
     console.error('Error fetching feeds list:', error);
@@ -54,71 +72,81 @@ export const getFeedsList = async () => {
 };
 
 // fonction pour récupérer les données du graphique
-export const getFeedData = async (feedId, timeRange,intervaldefined,skipmissing) => {
+export const getFeedData = async (feedId, timeRange, intervaldefined, skipmissing) => {
   try {
-    const now = Math.floor(Date.now() / 1000); // current time in seconds
+    console.log(`Fetching data for feedId: ${feedId}, timeRange: ${timeRange}`);
+    const cacheKey = `feedData_${feedId}_${timeRange}`;
+    const cacheTTLKey = `feedDataTTL_${feedId}_${timeRange}`;
+    const cacheTTL = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-    // Time duration in seconds for each range
+    // Check if data exists in localStorage and is still valid
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTTL = localStorage.getItem(cacheTTLKey);
+
+    if (cachedData && cachedTTL && Date.now() < parseInt(cachedTTL, 10)) {
+      console.log(`Returning cached data for feed ${feedId}`);
+      return JSON.parse(cachedData);
+    }
+
+    const now = Math.floor(Date.now() / 1000); // current time in seconds
     const timeRanges = {
-      '24h': 60 * 60 * 24 + 120,        // 1 day + 2 min
-      '1w': 60 * 60 * 24 * 7 + 900,     // 7 days + 15 min
-      '1m': 60 * 60 * 24 * 30 + 3600,   // 30 days + 1 hour
-      'y': 60 * 60 * 24 * 365 + 43200   // 365 days + 12 hours
+      '24h': 60 * 60 * 24 + 120,
+      '1w': 60 * 60 * 24 * 7 + 900,
+      '1m': 60 * 60 * 24 * 30 + 3600,
+      'y': 60 * 60 * 24 * 365 + 43200,
     };
 
     const intervalMap = {
       '24h': 120,
       '1w': 900,
       '1m': 3600,
-      'y': 43200
+      'y': 43200,
     };
 
-    const duration = timeRanges[timeRange] || (60 * 60 * 24 * 7); // default: 1 week
-    const interval = intervalMap[timeRange] || 900;
+    const duration = timeRanges[timeRange] || timeRanges['1m']; // default: 1 week
+    const interval = intervaldefined || intervalMap[timeRange] || 3600;
 
     const end = now * 1000; // in milliseconds
     const start = (now - duration) * 1000; // also in milliseconds
 
-    let targetUrl = ``;
-    if (intervaldefined && skipmissing) {
-      //console.log('cons')
-        targetUrl = `${BASE_URL}/feed/data.json?` +
-          `id=${feedId}&` +
-          `start=${start}&` +
-          `end=${end}&` +
-          `interval=${intervaldefined}&` +
-          `skipmissing=${skipmissing}&` +
-          `limitinterval=1&` +
-          `apikey=${API_KEY}`;
-    } else {
-        targetUrl = `${BASE_URL}/feed/data.json?` +
-          `id=${feedId}&` +
-          `start=${start}&` +
-          `end=${end}&` +
-          `interval=${interval}&` +
-          `skipmissing=1&` +
-          `limitinterval=1&` +
-          `apikey=${API_KEY}`;
-    }
+    const targetUrl = `/feed/data.json?` +
+      `id=${feedId}&` +
+      `start=${start}&` +
+      `end=${end}&` +
+      `interval=${interval}&` +
+      `skipmissing=${skipmissing || 1}&` +
+      `limitinterval=1&` +
+      `apikey=${API_KEY}`;
 
-    const response = await axios.get(`${targetUrl}`);
-    console.log('Response data:', response.data);
-    if (!response.data || !Array.isArray(response.data)) {
-      console.error('Invalid data format received:', response.data);
-      return [];
-    }
+    const response = await axios.get(targetUrl);
+
+    // Save data to localStorage with a TTL
+    localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    localStorage.setItem(cacheTTLKey, (Date.now() + cacheTTL).toString());
 
     return response.data;
   } catch (error) {
-    console.error('Error fetching feed data:', error);
+    console.error(`Error fetching feed data for feed ${feedId}:`, error);
     return [];
   }
 };
 
-
 // Function to fetch data for specific dashboard types
 export const getDashboardTypeData = async (dashboardType, timeRange) => {
   try {
+    const cacheKey = `dashboardData_${dashboardType}_${timeRange}`;
+    const cacheTTLKey = `dashboardDataTTL_${dashboardType}_${timeRange}`;
+    const cacheTTL = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+    // Check if data exists in localStorage and is still valid
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTTL = localStorage.getItem(cacheTTLKey);
+
+    if (cachedData && cachedTTL && Date.now() < parseInt(cachedTTL, 10)) {
+      console.log(`Returning cached data for dashboard ${dashboardType}`);
+      return JSON.parse(cachedData);
+    }
+
     // Calculate time range
     const now = Math.floor(Date.now() / 1000);
 
@@ -137,8 +165,8 @@ export const getDashboardTypeData = async (dashboardType, timeRange) => {
       'y': 43200
     };
 
-    const duration = timeRanges[timeRange] || (60 * 60 * 24 * 7); // default: 1 week
-    const interval = intervalMap[timeRange] || 900;
+    const duration = timeRanges[timeRange] || timeRanges['1m'];
+    const interval = intervalMap[timeRange] || 3600;
 
     const end = now * 1000; // in milliseconds
     const start = (now - duration) * 1000; // also in milliseconds
@@ -231,7 +259,7 @@ export const getDashboardTypeData = async (dashboardType, timeRange) => {
 
     // Fetch data for all feeds in parallel
     const feedDataPromises = config.feeds.map(async (feed) => {
-      const targetUrl = `${BASE_URL}/feed/data.json?` +
+      const targetUrl = `/feed/data.json?` +
         `id=${feed.id}&` +
         `start=${start}&` +
         `end=${end}&` +
@@ -283,7 +311,7 @@ export const getDashboardTypeData = async (dashboardType, timeRange) => {
     // Wait for all data to be fetched
     const datasets = await Promise.all(feedDataPromises);
 
-    return {
+    const dashboardData = {
       title: config.title,
       type: dashboardType,
       datasets: datasets,
@@ -328,6 +356,11 @@ export const getDashboardTypeData = async (dashboardType, timeRange) => {
       }
     };
 
+    // Save data to localStorage with a TTL
+    localStorage.setItem(cacheKey, JSON.stringify(dashboardData));
+    localStorage.setItem(cacheTTLKey, (Date.now() + cacheTTL).toString());
+
+    return dashboardData;
   } catch (error) {
     console.error('Error in getDashboardTypeData:', error);
     return {
@@ -352,7 +385,7 @@ export const checkAvailableFeeds = async () => {
 
 export const getInputList = async () => {
   try {
-    const targetUrl = `${BASE_URL}/input/list.json&apikey=${WRITE_API_KEY}`;
+    const targetUrl = `/input/list.json&apikey=${WRITE_API_KEY}`;
     const response = await fetch(targetUrl);
 
     if (!response.ok) {

@@ -2,16 +2,20 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useRef, useState } from 'react';
 import { Chart } from 'chart.js/auto';
+import zoomPlugin from 'chartjs-plugin-zoom'; // Import the zoom plugin
 import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
 import '../../styles/feed-chart.css';
 
-const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
+Chart.register(zoomPlugin);
+
+const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
   //console.log('FeedChart received data:', data);
   // console.log(timeRange)
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [chartType, setChartType] = useState('line');
+
   const [isDashboard, setIsDashboard] = useState(false);
 
   const chartTypes = [
@@ -90,7 +94,6 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
 
     //console.log('Now:', now);
     //console.log('Ranges:', ranges);
-
 
     try {
       return inputData.filter(point => {
@@ -174,7 +177,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
       new Date(point[0]).toISOString(),
       point[1]
     ]);
-    
+
     const csvContent = [['Timestamp', 'Value'], ...allRows]
       .map(row => row.join(','))
       .join('\n');
@@ -221,7 +224,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
           //console.log('dashboards-Feeds');
           const filteredData = filterDataByTimeRange(validData);
           //console.log(filteredData)
-          
+
           const downsampledData = downsampleData(filteredData, 1000);
 
           const formattedData = downsampledData.map(point => ({
@@ -300,10 +303,10 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
 
         //console.log(validData)
         const filteredData = filterDataByTimeRange(validData);
-        
+
         const downsampledData = downsampleData(filteredData, 1000);
         if (filteredData.length > 0) setIsDashboard(false)
-        
+
         const formattedData = downsampledData.map(point => ({
           x: point[0],
           y: point[1]
@@ -353,7 +356,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
       '1w': 'day',
       '1m': 'day',
       '2m': 'week',
-      'y':'month',
+      'y': 'month',
     }[timeRange];
 
     //console.log(datasets);
@@ -371,7 +374,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
 
         // console.log(isDarkMode);
         ctx.font = '10px Arial';
-        ctx.fillStyle ='rgb(126, 125, 125)' ; 
+        ctx.fillStyle = 'rgb(126, 125, 125)';
 
         datasets.forEach((dataset, index) => {
           // Get the last data point
@@ -387,7 +390,6 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
       },
     });
 
-    // Create the chart instance
     chartInstance.current = new Chart(ctx, {
       type: chartType === 'bar' ? 'bar' : 'line',
       data: { datasets },
@@ -399,11 +401,21 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
           legend: { display: true, position: 'top' },
           tooltip: { mode: 'index', intersect: false },
           title: { display: true, text: feedName },
-        },
-        interaction: {
-          mode: 'nearest',
-          axis: 'x',
-          intersect: false,
+          zoom: {
+            pan: {
+              enabled: true, // Enable panning
+              mode: 'x', // Allow panning in the x-axis
+            },
+            zoom: {
+              wheel: {
+                enabled: true, // Enable zooming with the mouse wheel
+              },
+              pinch: {
+                enabled: true, // Enable zooming with pinch gestures
+              },
+              mode: 'x',
+            },
+          },
         },
         scales: {
           x: {
@@ -411,6 +423,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
             time: { unit: timeUnit },
             ticks: { source: 'auto' },
             adapters: { date: { locale: enUS } },
+            bounds: 'ticks', // Ensure the axis does not extend beyond min/max
           },
           y: {
             beginAtZero: false,
@@ -463,7 +476,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true}) => {
         <canvas ref={chartRef} />
       </div>
       {/* Conditionally render statistics */}
-      {!isDashboard || isTimeRangeAppear ||(
+      {!isDashboard || isTimeRangeAppear || (
         <div className="chart-stats">
           <div className="stat-block">
             <div className="stat-label">Average</div>

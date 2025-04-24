@@ -101,7 +101,7 @@ const DashboardView = () => {
   return (
     <div className="dashboard-view">
       <div className="feeds-chart-area">
-        {type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' &&(
+        {type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' && type !=='3_EQUILIBRAGE' &&(
                 <div className="chart-container">
                   <div className="time-range-selector">
                     {Object.entries(timeRanges).map(([value, label]) => ( 
@@ -159,7 +159,7 @@ const DashboardView = () => {
           </div>
         )}
 
-        {(type === '9_MULTIDEBIT' || type === 'no name' || type === 'grafna') && (
+          {(type === '9_MULTIDEBIT' || type === 'no name' || type === 'grafna') && (
           <div className="no-data-message">
             <svg className="no-data-icon" viewBox="0 0 24 24">
               <path
