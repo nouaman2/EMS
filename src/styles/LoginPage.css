@@ -30,10 +30,10 @@
   background: var(--login-bg);
   transition: all 0.3s ease;
   overflow: hidden;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 .login-header {
@@ -153,15 +153,19 @@
   box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
 }
 
+
+.login-button:disabled {
+  background-color: var(--primary-disabled);
+  cursor: not-allowed;
+}
+
 .error-message {
-  background-color: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-  padding: 8px;
+  color: var(--error-color);
+  background-color: var(--error-background);
+  padding: 10px;
   border-radius: 4px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   text-align: center;
-  border: 1px solid rgba(244, 67, 54, 0.2);
-  font-size: 0.7rem;
 }
 
 [data-theme='dark'] .error-message {

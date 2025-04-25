@@ -1,31 +1,56 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import '../../styles/LoginPage.css'; // Reuse the same styles
+import { Link, useNavigate } from 'react-router-dom';
+import '../../styles/LoginPage.css';
+import { loginUser, getApiKeys } from '../../services/authService';
 
 const LoginPage = ({ isDarkMode, toggleTheme }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    const storedUsername = localStorage.getItem('username');
-    const storedEmail = localStorage.getItem('email');
-    const CORRECT_PASSWORD = 'ctm2018'; // Replace with actual password logic
+    try {
+      const loginResponse = await loginUser(username, password);
 
-    if (
-      username === storedUsername &&
-      password === CORRECT_PASSWORD &&
-      storedEmail
-    ) {
-      localStorage.setItem('isAuthenticated', 'true');
-      window.location.href = '/dashboard';
-    } else {
-      setError('Invalid username, email, or password');
+      if (loginResponse.success) {
+        // Store auth data
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('username', username);
+        localStorage.setItem('sessionId', loginResponse.sessionid);
+
+        try {
+          // Pass username and password to getApiKeys
+          const apiKeysResponse = await getApiKeys(username, password);
+          console.log('Full API Keys Response:', apiKeysResponse); // Debug log
+
+          if (apiKeysResponse.success && apiKeysResponse.apikey_read) {
+            localStorage.setItem('apikey', apiKeysResponse.apikey_read);
+            console.log('Stored API Key:', apiKeysResponse.apikey_read); // Verify stored key
+          } else {
+            console.warn('API key not found in response:', apiKeysResponse);
+          }
+        } catch (apiKeyError) {
+          console.warn('Failed to retrieve API keys:', apiKeyError.message);
+        }
+        console.log('saj')
+        // Navigate regardless of API key retrieval
+        navigate('/dashboard', { replace: true });
+      } else {
+        setError(loginResponse.message || 'Invalid credentials');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to connect to the server');
       setPassword('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,6 +101,7 @@ const LoginPage = ({ isDarkMode, toggleTheme }) => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               required
+              disabled={isLoading}
             />
           </div>
           <div className="form-group">
@@ -88,6 +114,7 @@ const LoginPage = ({ isDarkMode, toggleTheme }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -106,15 +133,19 @@ const LoginPage = ({ isDarkMode, toggleTheme }) => {
                   <svg viewBox="0 0 24 24" className="eye-icon">
                     <path
                       fill="currentColor"
-                      d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
+                      d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03 .65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
                     />
                   </svg>
                 )}
               </button>
             </div>
           </div>
-          <button type="submit" className="login-button">
-            Login
+          <button
+            type="submit"
+            className={`login-button`}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         <div className="register-link">

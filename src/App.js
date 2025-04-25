@@ -9,10 +9,11 @@ import DashboardView from './components/Dashboard/DashboardView';
 import InputList from './components/inputs/inputList';
 import ProfilePage from './components/Auth/ProfilePage'; 
 import EquilibriumDashboard from './components/Chart/EquilibriumDashboard';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // ← null = not yet checked
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [loading, setLoading] = useState(true); // ← new loading state
 
   useEffect(() => {

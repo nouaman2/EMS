@@ -13,6 +13,10 @@ const DashboardView = () => {
   const [error, setError] = useState(null); // Error state
   const [chartData, setChartData] = useState(null); // Chart data state for Multipuissance
   const [tensionData, setTensionData] = useState(null); // Chart data state for TENSION
+  const [waterLoading, setWaterLoading] = useState(true); // Loading state for water consumption
+  const [waterData, setWaterData] = useState(null); // Chart data state for water consumption
+  const [modulesdata, setmodulesdata] = useState(true); // Loading state for water consumption
+  const [modulesLoading, setmodulesLoading] = useState(null); // Chart data state for water consumption
   const [consommationLoading, setConsommationLoading] = useState(true); // Loading state for Consommation
   const [consommationData, setConsommationData] = useState(null); // Chart data state for Consommation
   const [coutLoading, setCoutLoading] = useState(true); // Loading state for Cout
@@ -55,7 +59,31 @@ const DashboardView = () => {
       console.error('Error fetching TENSION data:', err);
     }
   };
+  const fetchWaterData = async (selectedTimeRange) => {
+    try {
+      setWaterLoading(true);
+      const data = await getFeedData(1696, selectedTimeRange);
+      setWaterData(data);
+      setWaterLoading(false);
+    } catch (err) {
+      setError('Failed to load water consumption data');
+      setWaterLoading(false);
+      console.error('Error fetching water data:', err);
+    }
+  };
 
+  const fetchModulesData = async (selectedTimeRange) => {
+    try {
+      setmodulesLoading(true);
+      const data = await getFeedData(149, selectedTimeRange);
+      setmodulesdata(data);
+      setmodulesLoading(false);
+    } catch (err) {
+      setError('Failed to load water consumption data');
+      setmodulesLoading(false);
+      console.error('Error fetching water data:', err);
+    }
+  };
   const fetchConsommationData = async(selectedTimeRange, interval, skipmissing) => {
     try {
       setConsommationLoading(true);
@@ -94,6 +122,12 @@ const DashboardView = () => {
       fetchConsommationData(timeRange, 86400, 0); // Fetch Consommation data
       fetchCoutData(timeRange, 86400,0); // Fetch Cout data
     }
+    if (type === 'A10_EAU EW') {
+      fetchWaterData(timeRange);
+    }
+    if (type === '7_14 MODULES') {
+      fetchModulesData(timeRange);
+    }
   }, [type, timeRange]);
 
   if (loading || (type !== 'Multicourants' && tensionLoading)) return <div className="loading">Loading dashboard...</div>;
@@ -103,7 +137,7 @@ const DashboardView = () => {
   return (
     <div className="dashboard-view">
       <div className="feeds-chart-area">
-        {type !== '1_MULTIPUISSANCES' && type !== '2_MULTICOURANTS' && type !== '6_MULTIGRANDEURS' && type !== '4_TEMPERATURE' && type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' && type !=='3_EQUILIBRAGE' &&(
+        {type !== '1_MULTIPUISSANCES' && type !== '2_MULTICOURANTS' && type !== '7_14 MODULES' && type !== 'A10_EAU EW' && type !== '6_MULTIGRANDEURS' && type !== '4_TEMPERATURE' && type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' && type !=='3_EQUILIBRAGE' &&(
                 <div className="chart-container">
                     <div className="time-range-selector">
                       {Object.entries(timeRanges).map(([value, label]) => ( 
@@ -258,7 +292,15 @@ const DashboardView = () => {
           </div>
         )}
         {(type === '4_TEMPERATURE') && (
-          <div></div>
+          <div className='field-chart-container'>
+            <iframe
+              src="http://electricwave.ma/energymonitoring/dashboard/view&id=7&apikey=02f316fd3b4a3a52a8e3ed7a5d7d9ac2&embed=1"
+              width="100%"
+              height="550"
+              frameBorder="0"
+              scrolling="no"
+            ></iframe>
+          </div>
         )}
         {(type === '3_EQUILIBRAGE') && (
            <div className="field-chart-container">
@@ -277,14 +319,83 @@ const DashboardView = () => {
             <iframe
               src="http://electricwave.ma/energymonitoring/dashboard/view&id=55&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
               width="100%"
-              height="550"
+              height="640"
               frameborder="0"
               scrolling='nom'
             >
             </iframe>
         
         ))}
+        {(type === 'A10_EAU EW') && (
+          <div className="water-dashboard-container">
+            <div className="chart-container">
+              <div className="time-range-selector">
+                {Object.entries(timeRanges).map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                    onClick={() => setTimeRange(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
 
+              <div className="chart-wrapper">
+                <FeedChart
+                  data={waterData}
+                  feedName="Debit Eau"
+                  timeRange={timeRange}
+                  isTimeRangeAppear={true}
+                />
+              </div>
+            </div>
+            <div className="feeds-chart-container-consommation">
+              <div className="consumption-chart">
+                <h2 className="consumption-title">debit Inst :</h2>
+                <iframe
+                  src="http://electricwave.ma/energymonitoring/vis/realtime?embed=1&feedid=1696&colour=f70808&initzoom=1&apikey=3ddd9a580253f6c9aab6298f754cf0fd"
+                  frameBorder="0"
+                  className='iframe-consommation'
+                  scrolling="no"
+                ></iframe>
+              </div>
+              <div className="consumption-chart">
+                <h2 className="consumption-title">VOLUME</h2>
+                <iframe
+                  src="http://electricwave.ma/energymonitoring/vis/realtime?embed=1&feedid=1719&colour=000000&initzoom=1&apikey=3ddd9a580253f6c9aab6298f754cf0fd"
+                  frameBorder="0"
+                  className='iframe-consommation'
+                  scrolling="no"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        )}
+        {(type === '7_14 MODULES') && (
+          <div className="chart-container">
+            <div className="time-range-selector">
+              {Object.entries(timeRanges).map(([value, label]) => (
+                <button
+                  key={value}
+                  className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                  onClick={() => setTimeRange(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="chart-wrapper">
+              <FeedChart
+                data={modulesdata}
+                feedName="i1"
+                timeRange={timeRange}
+                isTimeRangeAppear={true}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
