@@ -59,25 +59,8 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
     fill: false,
   }));
 
-  const chartData = {
-    labels: data[0]?.data?.map((_, i) => i), // si pas de labels, utilise les index
-    datasets,
-  };
-
   //console.log('datasets',datasets)
   //console.log('Chart Data:', chartData);
-
-
-  // Fonction de débogage pour les périodes de temps
-  const logTimeRangeInfo = (data, filteredData, timeRange) => {
-    //console.log('Time Range:', timeRange);
-    //console.log('Total data points:', data?.length);
-    //console.log('Filtered data points:', filteredData?.length);
-    if (data?.length > 0) {
-      //console.log('First date:', new Date(data[0][0]));
-      //console.log('Last date:', new Date(data[data.length - 1][0]));
-    }
-  };
 
   const filterDataByTimeRange = (inputData) => {
     //console.log(inputData)
@@ -240,7 +223,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
             data: formattedData,
             borderColor: d.borderColor || defaultColors[i % defaultColors.length].border,
             backgroundColor: d.backgroundColor || defaultColors[i % defaultColors.length].bg,
-            borderWidth: 0.6,
+            borderWidth: 0.9,
             spanGaps: true,
             tension: 0.3,
             fill: true,
@@ -390,6 +373,26 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
       },
     });
 
+    const getDataLimits = (datasets) => {
+      let earliestDate = Infinity;
+      let latestDate = -Infinity;
+
+      datasets.forEach(dataset => {
+        dataset.data.forEach(point => {
+          if (point.x < earliestDate) earliestDate = point.x;
+          if (point.x > latestDate) latestDate = point.x;
+        });
+      });
+
+      return {
+        min: earliestDate,
+        max: Math.min(latestDate, new Date().getTime()) // Use current date if it's less than latest data point
+      };
+    };
+
+    const limits = getDataLimits(datasets);
+    console.log('limits', limits)
+
     chartInstance.current = new Chart(ctx, {
       type: chartType === 'bar' ? 'bar' : 'line',
       data: { datasets },
@@ -397,25 +400,65 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'nearest', axis: 'x', intersect: false },
+        // Replace the plugins configuration in your chart options
         plugins: {
           legend: { display: true, position: 'top' },
-          tooltip: { mode: 'index', intersect: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            titleFont: {
+              size: 8 // Smaller font size for the title (date)
+            },
+            bodyFont: {
+              size: 8 // Smaller font size for the body (value)
+            },
+            padding: 5,
+            bodySpacing: 2,
+            titleSpacing: 2
+          },
           title: { display: true, text: feedName },
-          zoom: {
+          zoom: {  // Main zoom plugin configuration
+            limits: {
+              x: {
+                min: limits.min,
+                max: limits.max,
+                minRange: 1000 * 60 * 5 // 5 minutes minimum zoom range
+              }
+            },
             pan: {
-              enabled: true, // Enable panning
-              mode: 'x', // Allow panning in the x-axis
+              enabled: true,
+              mode: 'x',
+              onPan: function () {
+                const chart = chartInstance.current;
+                const xAxis = chart.scales.x;
+                if (xAxis.min < limits.min) {
+                  xAxis.min = limits.min;
+                }
+                if (xAxis.max > limits.max) {
+                  xAxis.max = limits.max;
+                }
+              }
             },
             zoom: {
               wheel: {
-                enabled: true, // Enable zooming with the mouse wheel
+                enabled: true,
               },
               pinch: {
-                enabled: true, // Enable zooming with pinch gestures
+                enabled: true
               },
               mode: 'x',
-            },
-          },
+              onZoom: function () {
+                const chart = chartInstance.current;
+                const xAxis = chart.scales.x;
+                if (xAxis.min < limits.min) {
+                  xAxis.min = limits.min;
+                }
+                if (xAxis.max > limits.max) {
+                  xAxis.max = limits.max;
+                }
+              }
+            }
+          }
         },
         scales: {
           x: {
@@ -423,7 +466,13 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
             time: { unit: timeUnit },
             ticks: { source: 'auto' },
             adapters: { date: { locale: enUS } },
-            bounds: 'ticks', // Ensure the axis does not extend beyond min/max
+            min: limits.min,
+            max: limits.max,
+            bounds: 'data', // Changed from 'ticks' to 'data'
+            ticks: {
+              maxRotation: 0,
+              autoSkip: true,
+            }
           },
           y: {
             beginAtZero: false,
@@ -476,7 +525,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
         <canvas ref={chartRef} />
       </div>
       {/* Conditionally render statistics */}
-      {!isDashboard || isTimeRangeAppear || (
+      {!isDashboard && isTimeRangeAppear && (
         <div className="chart-stats">
           <div className="stat-block">
             <div className="stat-label">Average</div>

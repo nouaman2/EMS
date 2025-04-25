@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import FeedChart from '../Chart/FeedChart';
+import PieChartPuissance from './PieChartPuissance';
 import { getDashboardTypeData, getFeedData } from '../../services/emonAPI';
 import '../../styles/DashboardView.css'; // Import the CSS file for styling
+import PieChartMulticourant from './PieChartMulticourant';
 
 const DashboardView = () => {
   const { type } = useParams(); // Get the dynamic "type" parameter from the URL
@@ -101,20 +103,50 @@ const DashboardView = () => {
   return (
     <div className="dashboard-view">
       <div className="feeds-chart-area">
-        {type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' && type !=='3_EQUILIBRAGE' &&(
+        {type !== '1_MULTIPUISSANCES' && type !== '2_MULTICOURANTS' && type !== '6_MULTIGRANDEURS' && type !== '4_TEMPERATURE' && type !== '5_CONSOMMATION' && type !== '9_MULTIDEBIT' && type !== 'no name' && type !== 'grafna' && type !=='3_EQUILIBRAGE' &&(
                 <div className="chart-container">
-                  <div className="time-range-selector">
-                    {Object.entries(timeRanges).map(([value, label]) => ( 
-                      <button
-                        key={value}
-                        className={`time-range-option ${timeRange === value ? 'active' : ''}`}
-                        onClick={() => setTimeRange(value)}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                  
+                    <div className="time-range-selector">
+                      {Object.entries(timeRanges).map(([value, label]) => ( 
+                        <button
+                          key={value}
+                          className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                          onClick={() => setTimeRange(value)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="chart-container">
+                      <FeedChart
+                        data={chartData.datasets.map((d) => ({
+                          label: d.label,
+                          data: d.data,
+                        }))}
+                        feedName={type} // Use the "type" as the feed name
+                        timeRange={timeRange} // Pass the selected time range to the chart
+                      />
+                </div>
+                </div>
+          )}
+
+        {/* Conditionally Render TENSION Chart */}
+        {type == '1_MULTIPUISSANCES' && (
+          <div className='feeds-chart-container'>  
+            <div className="chart-container block1">
+              <div className="chart-multipuissance">
+                    <div className="time-range-selector">
+                      {Object.entries(timeRanges).map(([value, label]) => ( 
+                        <button
+                          key={value}
+                          className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                          onClick={() => setTimeRange(value)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    
                     <div className="chart-container">
                       <FeedChart
                         data={chartData.datasets.map((d) => ({
@@ -125,41 +157,96 @@ const DashboardView = () => {
                         timeRange={timeRange} // Pass the selected time range to the chart
                       />
                     </div>
-                </div>
-          )}
-
-        {/* Conditionally Render TENSION Chart */}
-        {type == '1_MULTIPUISSANCES' && (
-          <div className="chart-container">
-            <FeedChart
-              data={tensionData}
-              feedName="TENSION" // Use "TENSION" as the feed name
-              timeRange={timeRange} // Pass the selected time range to the chart
-              isTimeRangeAppear = "false"
-            />
+              </div>
+              <PieChartPuissance />
+            </div>
+            <div className="chart-container block2">
+              <FeedChart
+                data={tensionData}
+                feedName="TENSION" // Use "TENSION" as the feed name
+                timeRange={timeRange} // Pass the selected time range to the chart
+                isTimeRangeAppear = "false"
+                />
+            </div>
+            <div className="instantane">
+              <div>
+                <h3>PUISSANCE TOTALE INST</h3>
+                  <iframe
+                    src="http://electricwave.ma/energymonitoring/vis/realtime?embed=1&feedid=27&colour=ff8000&initzoom=5&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
+                    width="160%"
+                    height="250"
+                    frameborder="0"
+                    scrolling="no"
+                    >
+                </iframe>
+              </div>
+              <div>
+                <h3>TENSION INST</h3>
+                  <iframe
+                    src="http://electricwave.ma/energymonitoring/vis/realtime?embed=1&feedid=27&colour=ff8000&initzoom=5&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
+                    width="160%"
+                    height="250"
+                    frameborder="0"
+                    scrolling="no"
+                  >
+                  </iframe>
+              </div>
+            </div>
           </div>
         )}
-     
+        {type == '2_MULTICOURANTS' && (
+          <div className="chart-container block1">
+            <div className="chart chart-multipuissance">
+              <div className="time-range-selector">
+                {Object.entries(timeRanges).map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={`time-range-option ${timeRange === value ? 'active' : ''}`}
+                    onClick={() => setTimeRange(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="chart-container">
+                <FeedChart
+                  data={chartData.datasets.map((d) => ({
+                    label: d.label,
+                    data: d.data,
+                  }))}
+                  feedName={type} // Use the "type" as the feed name
+                  timeRange={timeRange} // Pass the selected time range to the chart
+                />
+              </div>
+            </div>
+            <PieChartMulticourant />
+          </div>
+          )}
         {type == '5_CONSOMMATION' && (
           <div className="feeds-chart-container-consommation">
-            <iframe
-              src="http://electricwave.ma/energymonitoring/vis/bargraph?embed=1&feedid=1246&colour=ff8080&interval=d&units= KWH&dp=&scale=&delta=1&mode=0&initzoom=1&apikey=02f316fd3b4a3a52a8e3ed7a5d7d9ac2"
-              width="95%"
-              height="450"
-              frameborder="0"
-              className='iframe-consommation'
-            ></iframe>
-            <iframe
-              src="http://electricwave.ma/energymonitoring/vis/bargraph?embed=1&feedid=1246&colour=62c400&interval=d&units= DH&dp=&scale=1.7&delta=1&mode=0&initzoom=1&apikey=02f316fd3b4a3a52a8e3ed7a5d7d9ac2"
-              width="95%"
-              height="450"
-              frameborder="0"
-              className='iframe-consommation'
-            ></iframe>
+            <div className="consumption-chart">
+              <h2 className="consumption-title">Consumption (KWH)</h2>
+              <iframe
+                src="http://electricwave.ma/energymonitoring/vis/bargraph?embed=1&feedid=1246&colour=ff8080&interval=d&units= KWH&dp=&scale=&delta=1&mode=0&initzoom=1&apikey=02f316fd3b4a3a52a8e3ed7a5d7d9ac2"
+                frameBorder="0"
+                className='iframe-consommation'
+                scrolling="no"
+              ></iframe>
+            </div>
+            <div className="consumption-chart">
+              <h2 className="consumption-title">Cost (DH)</h2>
+              <iframe
+                src="http://electricwave.ma/energymonitoring/vis/bargraph?embed=1&feedid=1246&colour=62c400&interval=d&units= DH&dp=&scale=1.7&delta=1&mode=0&initzoom=1&apikey=02f316fd3b4a3a52a8e3ed7a5d7d9ac2"
+                frameBorder="0"
+                className='iframe-consommation'
+                scrolling="no"
+              ></iframe>
+            </div>
           </div>
         )}
 
-          {(type === '9_MULTIDEBIT' || type === 'no name' || type === 'grafna') && (
+        {(type === '9_MULTIDEBIT' || type === 'no name' || type === 'grafna') && (
           <div className="no-data-message">
             <svg className="no-data-icon" viewBox="0 0 24 24">
               <path
@@ -170,6 +257,33 @@ const DashboardView = () => {
             <span>No data available for this dashboard</span>
           </div>
         )}
+        {(type === '4_TEMPERATURE') && (
+          <div></div>
+        )}
+        {(type === '3_EQUILIBRAGE') && (
+           <div className="field-chart-container">
+            <iframe
+                src="http://electricwave.ma/energymonitoring/dashboard/view&id=53&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
+                width="100%"
+                height="450"
+                frameborder="0"
+                scrolling="no"
+            >
+            </iframe>
+          </div>
+        )}
+        {(type === '6_MULTIGRANDEURS' && (
+          
+            <iframe
+              src="http://electricwave.ma/energymonitoring/dashboard/view&id=55&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
+              width="100%"
+              height="550"
+              frameborder="0"
+              scrolling='nom'
+            >
+            </iframe>
+        
+        ))}
 
       </div>
     </div>

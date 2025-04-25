@@ -40,11 +40,16 @@
 }
 
 .feeds-chart-area {
-    width: fit-content;
+    max-width: 100%;
 }
 
 .feeds-chart-container{
     margin: 2px;
+    width: 70rem;
+    height: max-content;
+}
+.chart-multipuissance{
+    width: 46rem;
 }
 .view-button {
     background-color: var(--primary-color, #4CAF50);
