@@ -13,7 +13,7 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true); // ← new loading state
 
   useEffect(() => {
@@ -27,15 +27,16 @@ function App() {
       return newMode;
     });
   };
-
+  const checkAuth = () => {
+    const authStatus = localStorage.getItem('isAuthenticated') === 'true' &&
+      sessionStorage.getItem('isAuthenticated') === 'true';
+    setIsAuthenticated(authStatus);
+    setLoading(false);
+  };
   useEffect(() => {
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-      setIsAuthenticated(authStatus);
-      setLoading(false); // ← we're done checking
-    };
-
     checkAuth();
+    // Listen for auth changes
+    window.addEventListener('auth-change', checkAuth);
     window.addEventListener('storage', checkAuth);
 
     const savedTheme = localStorage.getItem('theme');
@@ -44,6 +45,7 @@ function App() {
     }
 
     return () => {
+      window.removeEventListener('auth-change', checkAuth);
       window.removeEventListener('storage', checkAuth);
     };
   }, []);
@@ -54,6 +56,7 @@ function App() {
     <div className={`app ${isDarkMode ? 'dark' : 'light'}`}>
       <BrowserRouter>
         <Routes>
+          
           {/* Login Route */}
           <Route
             path="/login"
