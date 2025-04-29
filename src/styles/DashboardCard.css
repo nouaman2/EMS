@@ -41,16 +41,16 @@
 
 .feeds-chart-area {
     max-width: 100%;
-    height:40rem;
+    height:fit-content;
 }
 
-.feeds-chart-container{
+.feeds-chart-container{ 
     margin: 2px;
-    width: 70rem;
+    width: 80rem;
     height: max-content;
 }
 .chart-multipuissance{
-    width: 46rem;
+    width: 55rem;
 }
 .view-button {
     background-color: var(--primary-color, #4CAF50);

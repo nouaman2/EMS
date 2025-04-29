@@ -7,15 +7,21 @@
   right: 0;
   overflow-y: hidden;
 }
+.feeds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px 0;
+  width: 100%;
+}
 
 .feeds-title {
-  margin: 0 0 16px 0;
-  font-size: 10px;
-  font-weight: 500;
-  position: sticky;
-  top: 0;
-  background-color: var(--background-default);
-  z-index: 1;
+      font-size: 16px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin: 0;
+        flex-shrink: 0;
 }
 
 .feeds-list {
@@ -93,7 +99,7 @@
 }
 
 .feed-name {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
 }
 
@@ -101,7 +107,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  font-size: 8px;
+  font-size: 9px;
   color: var(--text-secondary);
 }
 
@@ -135,7 +141,7 @@
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .feed-item-details {
-    flex-direction: column;
+    flex-direction: column; 
     gap: 8px;
   }
 }
@@ -144,7 +150,6 @@
   display: flex;
   gap: 24px;
   height: calc(100vh - 140px);
-  margin-top: 16px;
   overflow: hidden;
 }
 
@@ -159,7 +164,6 @@
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   padding: 16px;
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -176,7 +180,6 @@
 
 .feed-chart-container {
   flex: 1;
-  margin-top: 24px;
   padding: 20px;
   background-color: var(--background-paper);
   border-radius: 8px;

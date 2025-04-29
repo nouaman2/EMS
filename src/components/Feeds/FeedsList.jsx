@@ -121,17 +121,22 @@ const FeedsList = () => {
 
   return (
     <div className="feeds-container">
-      <h3 className="feeds-title">Feeds By Node</h3>
+      <div className="feeds-header">
+        <p className="feeds-title">Feeds By Node</p>
 
-      {/* Search Bar */}
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search for a feed..."
-          value={searchTerm}
-          onChange={handleSearch}
-          className="search-input"
-        />
+        {/* Search Bar */}
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search for a feed..."
+            value={searchTerm}
+            onChange={handleSearch}
+            onKeyPress={handleSearchKeyPress}
+            className="search-input"
+            aria-label="Search feeds"
+          />
+        </div>
+
       </div>
 
       <div className="feeds-layout">

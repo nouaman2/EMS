@@ -9,7 +9,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const storedUsername = localStorage.getItem('username');
-        const storedEmail = localStorage.getItem('email') || 'example@example.com';
+        const storedEmail = localStorage.getItem('email') || 'medchennani@gmail.com';
         setUsername(storedUsername || 'N/A');
         setEmail(storedEmail);
     }, []);

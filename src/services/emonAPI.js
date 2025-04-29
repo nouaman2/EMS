@@ -4,12 +4,15 @@ const BASE_URL = 'http://electricwave.ma/energymonitoring';
 const API_KEY = '3ddd9a580253f6c9aab6298f754cf0fd';
 const WRITE_API_KEY = '02f316fd3b4a3a52a8e3ed7a5d7d9ac2';
 
+const withBaseUrl = (url) => `${BASE_URL}${url}`;
+
+
 //recuperer la liste des tableaux de bord
 export const getDashboardList = async () => {
   try {
     const targetUrl = `/dashboard/list.json?apikey=${WRITE_API_KEY}`;
 
-    const response = await axios.get(`${targetUrl}`);
+    const response = await axios.get(withBaseUrl(targetUrl));
 
     const dashboards = response.data.map(dashboard => ({
       id: dashboard.id,
@@ -32,7 +35,7 @@ export const getDashboardData = async (dashboardId) => {
   try {
     const targetUrl = `/dashboard/view.json?id=${dashboardId}&apikey=${WRITE_API_KEY}`;
 
-    const response = await axios.get(`${targetUrl}`);
+    const response = await axios.get(withBaseUrl(targetUrl));
     return response.data;
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
@@ -58,7 +61,7 @@ export const getFeedsList = async () => {
 
     // Fetch data from the API
     const targetUrl = `/feed/list.json?apikey=${API_KEY}`;
-    const response = await axios.get(targetUrl);
+    const response = await axios.get(withBaseUrl(targetUrl));
 
     // Save data to localStorage with a TTL
     localStorage.setItem(cacheKey, JSON.stringify(response.data));
@@ -118,7 +121,7 @@ export const getFeedData = async (feedId, timeRange, intervaldefined, skipmissin
       `limitinterval=1&` +
       `apikey=${API_KEY}`;
 
-    const response = await axios.get(targetUrl);
+    const response = await axios.get(withBaseUrl(targetUrl));
 
     // Save data to localStorage with a TTL
     localStorage.setItem(cacheKey, JSON.stringify(response.data));
@@ -269,7 +272,7 @@ export const getDashboardTypeData = async (dashboardType, timeRange) => {
         `apikey=${WRITE_API_KEY}`;
 
       try {
-        const response = await axios.get(`${targetUrl}`);
+        const response = await axios.get(withBaseUrl(targetUrl));
 
         if (!Array.isArray(response.data)) {
           console.error(`Invalid data format for feed ${feed.name}:`, response.data);
@@ -386,7 +389,7 @@ export const checkAvailableFeeds = async () => {
 export const getInputList = async () => {
   try {
     const targetUrl = `/input/list.json&apikey=${WRITE_API_KEY}`;
-    const response = await fetch(targetUrl);
+    const response = await fetch(withBaseUrl(targetUrl));
 
     if (!response.ok) {
       throw new Error('Failed to fetch input list');

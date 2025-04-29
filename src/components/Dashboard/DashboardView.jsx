@@ -15,7 +15,7 @@ const DashboardView = () => {
   const [tensionData, setTensionData] = useState(null); // Chart data state for TENSION
   const [waterLoading, setWaterLoading] = useState(true); // Loading state for water consumption
   const [waterData, setWaterData] = useState([]); // Chart data state for water consumption
-  const [modulesdata, setmodulesdata] = useState([]); // Loading state for water consumption
+  const [modulesdata, setmodulesdata] = useState([]); // Loading state for water consumptionnpm
   const [modulesLoading, setmodulesLoading] = useState(null); // Chart data state for water consumption
   const [consommationLoading, setConsommationLoading] = useState(true); // Loading state for Consommation
   const [consommationData, setConsommationData] = useState(null); // Chart data state for Consommation
