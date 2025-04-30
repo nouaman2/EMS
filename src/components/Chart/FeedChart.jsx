@@ -71,7 +71,6 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
       '24h': now - 86400000,
       '1w': now - 604800000,
       '1m': now - 2592000000,
-      '2m': now - 5184000000,
       'y': now - 31536000000,
     };
 
@@ -342,7 +341,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
       'y': 'month',
     }[timeRange];
 
-    //console.log(datasets);
+    // console.log(datasets);
     // Register the custom plugin globally
     Chart.register({
       id: 'customValueDisplay',
@@ -391,7 +390,7 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
     };
 
     const limits = getDataLimits(datasets);
-    console.log('limits', limits)
+    //console.log('limits', limits)
 
     chartInstance.current = new Chart(ctx, {
       type: chartType === 'bar' ? 'bar' : 'line',
@@ -400,29 +399,48 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'nearest', axis: 'x', intersect: false },
-        // Replace the plugins configuration in your chart options
         plugins: {
-          legend: { display: true, position: 'top' },
+          legend: { 
+            display: true, 
+            position: 'top',
+            labels: {
+              font: {
+                size: 8
+              },
+              boxWidth: 8,
+              padding: 4
+            }
+          },
           tooltip: {
             mode: 'index',
             intersect: false,
             titleFont: {
-              size: 8 // Smaller font size for the title (date)
+              size: 7
             },
             bodyFont: {
-              size: 8 // Smaller font size for the body (value)
+              size: 7
             },
-            padding: 5,
-            bodySpacing: 2,
-            titleSpacing: 2
+            padding: 3,
+            bodySpacing: 1,
+            titleSpacing: 1
           },
-          title: { display: true, text: feedName },
-          zoom: {  // Main zoom plugin configuration
+          title: { 
+            display: true, 
+            text: feedName,
+            font: {
+              size: 9
+            },
+            padding: {
+              top: 2,
+              bottom: 2
+            }
+          },
+          zoom: {
             limits: {
               x: {
                 min: limits.min,
                 max: limits.max,
-                minRange: 1000 * 60 * 5 // 5 minutes minimum zoom range
+                minRange: 1000 * 60 * 5
               }
             },
             pan: {
@@ -464,23 +482,41 @@ const FeedChart = ({ data, feedName, timeRange, isTimeRangeAppear = true }) => {
           x: {
             type: 'time',
             time: { unit: timeUnit },
-            ticks: { source: 'auto' },
+            ticks: { 
+              source: 'auto',
+              font: {
+                size: 7
+              },
+              maxRotation: 0,
+              autoSkip: true,
+              padding: 2
+            },
             adapters: { date: { locale: enUS } },
             min: limits.min,
             max: limits.max,
-            bounds: 'data', // Changed from 'ticks' to 'data'
-            ticks: {
-              maxRotation: 0,
-              autoSkip: true,
+            bounds: 'data',
+            grid: {
+              display: true,
+              drawBorder: true,
+              lineWidth: 0.5
             }
           },
           y: {
             beginAtZero: false,
             ticks: {
+              font: {
+                size: 7
+              },
+              padding: 2,
               callback: function (value) {
                 return value;
               },
             },
+            grid: {
+              display: true,
+              drawBorder: true,
+              lineWidth: 0.5
+            }
           },
         },
       },

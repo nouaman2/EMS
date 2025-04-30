@@ -3,16 +3,17 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 8px;
     background: var(--background-paper);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    margin-bottom: 16px;
-    gap: 24px;
+    margin-bottom: 6px;
+    gap: 20px;
 }
 
 .feeds-title {
-    font-size: 18px;
+    font-size: 9px;
+    padding-left: 6px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
@@ -21,19 +22,18 @@
 
 /* Search Bar Styling */
 .search-bar {
-    display: flex;
     flex: 1;
-    max-width: 400px;
+    max-width: 230px;
     align-items: center;
     position: relative;
 }
 
 .search-input {
     width: 80%;
-    padding: 10px 16px;
-    padding-left: 40px;
+    padding: 4px 9px;
+    padding-left: 26px;
     /* Space for the search icon */
-    font-size: 14px;
+    font-size: 9px;
     border: 2px solid var(--border-color, #e0e0e0);
     border-radius: 8px;
     background-color: var(--background-input, #ffffff);
@@ -160,7 +160,7 @@
 }
 
 .node-title {
-  font-size: 14px;
+  font-size: 7px;
   font-weight: 500;
   color: var(--text-primary);
 }

@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 40px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -20,13 +20,13 @@
 }
 
 .navbar-logo {
-  width: 19px;
-  height: 19px;
+  width: 14px;
+  height: 14px;
 }
 
 .navbar-title {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.5rem;
   font-weight: 700;
   letter-spacing: 0.2px;
   white-space: nowrap;
@@ -41,19 +41,19 @@
 .theme-switch {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .theme-label {
-  font-size: 0.7rem;
+  font-size: 0.5rem;
 }
 
 /* Switch styles */
 .switch {
   position: relative;
   display: inline-block;
-  width: 28px;
-  height: 20px;
+  width: 21px;
+  height: 14px;
 }
   
 .switch input {
@@ -65,8 +65,8 @@
 .slider {
   position: absolute;
   cursor: pointer;
-  width: 28px;
-  height: 18px;
+  width: 21px;
+  height: 11px;
   top: 0;
   left: 0;
   right: 0;
@@ -80,8 +80,8 @@
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 9px;
+  width: 9px;
   left: 1px;
   bottom: 1px;
   background-color: white;
@@ -100,12 +100,12 @@ input:checked + .slider:before {
 
 .icon-button {
   color: var(--text-primary) !important;
-  padding: 4px !important;
+  padding: 3px !important;
   position: relative;
 }
 
 .icon {
-  font-size: 0.9rem !important;
+  font-size: 0.6rem !important;
   color: var(--text-primary) !important;
 }
 
@@ -127,9 +127,9 @@ input:checked + .slider:before {
 }
 
 .navbar-username {
-  margin-right: 10px;
-  margin-left: 10px;
-  font-size: 18px;
+  margin-right: 6px;
+  margin-left: 6px;
+  font-size: 0.6rem;
   font-weight: bold;
   color: var(--text-primary, #333);
 }

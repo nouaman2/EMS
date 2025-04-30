@@ -3,7 +3,7 @@
     background: var(--bg-card, #ffffff);
     border-radius: 8px;
     padding: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
@@ -21,7 +21,7 @@
 }
 
 .dashboard-name {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--text-primary, #2c3e50);
     margin: 0 0 8px 0;
@@ -46,11 +46,11 @@
 
 .feeds-chart-container{ 
     margin: 2px;
-    width: 80rem;
+    width: 65rem;
     height: max-content;
 }
 .chart-multipuissance{
-    width: 55rem;
+    width: 43rem;
 }
 .view-button {
     background-color: var(--primary-color, #4CAF50);

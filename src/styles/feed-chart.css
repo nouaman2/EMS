@@ -3,12 +3,12 @@
   display: flex;
   flex-direction: column;
   margin: 0;
-  padding: 8px;
+  padding: 4px;
   background-color: var(--background-paper);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: auto;
-  min-height: 500px;
+  min-height: 200px;
   overflow: hidden;
 }
 
@@ -163,8 +163,8 @@
 .chart-wrapper {
   flex: 1;
   position: relative;
-  min-height: 250px;
-  margin-bottom: 8px;
+  min-height: 150px;
+  margin-bottom: 4px;
   padding: 0;
   background-color: #ffffff;
 }
@@ -237,7 +237,7 @@
 /* Ensure the canvas takes up remaining space */
 .feed-chart-container canvas {
   flex: 1;
-  min-height: 300px;
+  min-height: 150px;
 }
 
 /* Light mode defaults */
@@ -289,7 +289,7 @@
   }
 
   .chart-wrapper {
-    min-height: 300px;
+    min-height: 180px;
   }
 }
 
@@ -300,7 +300,6 @@
   flex-direction: row;
   align-items: center;
   gap: 5px;
-  margin-bottom: 8px;
   position: relative;
   /* Add relative positioning for the container */
 }
@@ -309,7 +308,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .chart-type-dropdown {
@@ -333,7 +332,6 @@
   padding: 4px;
   background-color: var(--background-default);
   border-radius: 8px;
-  margin-top: 2px;
 }
 
 .chart-type-option {
@@ -360,14 +358,14 @@
 }
 
 .chart-type-icon {
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
   filter: var(--icon-filter);
 }
 
 .chart-type-option span {
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 500;
 }
 
@@ -415,16 +413,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 3px 4px;
   border: 2px solid transparent;
   border-radius: 6px;
   background-color: var(--background-paper);
   color: var(--text-primary);
   cursor: pointer;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 500;
   transition: all 0.2s ease;
-  min-width: 45px;
+  min-width: 35px;
   justify-content: center;
 }
 

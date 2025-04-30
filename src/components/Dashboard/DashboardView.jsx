@@ -23,7 +23,7 @@ const DashboardView = () => {
   const [coutData, setCoutData] = useState(null); // Chart data state for Cout
   const [timeRange, setTimeRange] = useState('1m'); // Time range state
 
-  console.log('DashboardView type:', type); // Log the type parameter for debugging
+  //console.log('DashboardView type:', type); // Log the type parameter for debugging
 
   const timeRanges = {
   '24h': 'D',
@@ -317,7 +317,6 @@ const DashboardView = () => {
           </div>
         )}
         {(type === '6_MULTIGRANDEURS' && (
-          
             <iframe
               src="http://electricwave.ma/energymonitoring/dashboard/view&id=55&apikey=3ddd9a580253f6c9aab6298f754cf0fd&embed=1"
               width="100%"
@@ -326,7 +325,6 @@ const DashboardView = () => {
               scrolling='nom'
             >
             </iframe>
-        
         ))}
         {(type === 'A10_EAU EW') && (
           <div className="water-dashboard-container">

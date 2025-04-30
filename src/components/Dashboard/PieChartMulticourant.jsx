@@ -85,7 +85,7 @@ const PieChartMulticourant = () => {
             legend: {
                 position: 'bottom',
                 labels: {
-                    color: '#333',
+                    color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255, 255, 255, 0.9)' : '#333',
                     font: {
                         size: 12,
                         weight: '600'
@@ -98,7 +98,7 @@ const PieChartMulticourant = () => {
             title: {
                 display: true,
                 text: 'Distribution des Courants',
-                color: '#333',
+                color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255, 255, 255, 0.9)' : '#333',
                 font: {
                     size: 16,
                     weight: 'bold',
@@ -107,9 +107,9 @@ const PieChartMulticourant = () => {
                 padding: 20
             },
             tooltip: {
-                backgroundColor: '#fff',
-                titleColor: '#333',
-                bodyColor: '#666',
+                backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(0, 0, 0, 0.8)' : '#fff',
+                titleColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255, 255, 255, 0.9)' : '#333',
+                bodyColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255, 255, 255, 0.9)' : '#666',
                 bodyFont: {
                     size: 13
                 },
